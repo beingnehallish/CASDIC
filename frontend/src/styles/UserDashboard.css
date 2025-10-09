@@ -1,0 +1,261 @@
+/* ================= Font ================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #f6f8fa;
+}
+
+/* ================= Hero Section ================= */
+.hero {
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  margin-top: 56px; /* Navbar height */
+  background: linear-gradient(135deg, #1abc9c, #16a085);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.hero-content p {
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+/* ================= Dashboard ================= */
+.user-dashboard .dashboard {
+  margin-top: 56px; /* Navbar fixed height */
+  padding: 20px;
+}
+
+/* ================= Navbar ================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #007BFF;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  padding: 14px 0;
+  margin: 0;
+}
+
+.navbar li {
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.navbar li:hover,
+.navbar li.active {
+  background: #f9fcff;
+  color: black;
+  transform: scale(1.05);
+}
+
+/* ================= Card Grid ================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  padding: 25px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+
+.card h3 {
+  font-size: 22px;
+  color: #2c3e50;
+  margin: 14px 0 8px;
+  font-weight: 700;
+}
+
+.card p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #007BFF;
+  margin: 6px 0;
+}
+
+/* ================= Card Icons ================= */
+.card-icons {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.icon {
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  color: #555;
+}
+
+.search-icon:hover {
+  color: #28a745; /* green */
+}
+
+.thunder-icon:hover {
+  color: #007bff; /* blue */
+}
+
+.thunder-icon.watched {
+  color: #007bff; /* persisted watched state */
+}
+
+/* ================= Search Bar ================= */
+.search-bar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 0 20px;
+}
+
+.search-bar input {
+  width: 60%;
+  padding: 10px 15px;
+  border-radius: 25px;
+  background-color: #f0f7ff;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #1abc9c;
+  box-shadow: 0 0 10px rgba(26, 188, 156, 0.3);
+}
+
+/* ================= Settings ================= */
+.settings {
+  width: 100%;
+  max-width: 520px;
+  margin: 20px auto 50px auto;
+  text-align: center;
+  padding: 50px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.settings h2 {
+  margin-bottom: 20px;
+  color: #0c0d0d;
+}
+
+.settings form input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.settings button,
+.logout-btn {
+  padding: 10px 25px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 25px;
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.settings button:hover,
+.logout-btn:hover {
+  background-color: #74aeeb;
+  color:black;
+  transform: scale(1.05);
+  border:2px solid black;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 1000px) {
+  .hero { height: 220px; padding: 0 15px; }
+  .hero-content h1 { font-size: 32px; }
+  .hero-content p { font-size: 18px; }
+  .navbar ul { flex-direction: column; gap: 12px; }
+  .search-bar input { width: 90%; }
+}
+
+@media (max-width: 600px) {
+  .hero { height: 180px; padding: 0 10px; }
+  .hero-content h1 { font-size: 26px; }
+  .hero-content p { font-size: 16px; }
+  .card-grid { gap: 20px; padding: 15px; }
+  .card h3 { font-size: 20px; }
+  .card p { font-size: 16px; }
+  .navbar ul { padding: 10px 0; }
+  .settings { padding: 15px; }
+}
+.notifications-grid {
+  display: flex;
+  gap: 2rem;
+}
+
+.watchlist-column,
+.notifications-column {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
+}

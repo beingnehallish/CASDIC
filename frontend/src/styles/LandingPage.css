@@ -1,0 +1,217 @@
+/* General */
+.landing-page {
+  scroll-behavior: smooth;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Navbar */
+.navbar1 {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  background:#007BFF;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  z-index: 1000;
+}
+
+.navbar1 .logo {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.navbar1 ul {
+  display: flex;
+  list-style: none;
+  gap: 25px;
+}
+
+.navbar1 li {
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.navbar1 li:hover {
+  background: #1abc9c;
+  color: #fff;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding-top: 60px;
+  background: url('../assets/drdo.png') center/cover no-repeat;
+  color: #fff;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white; /* overlay */
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 20px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color:black;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+  color:black;
+}
+
+.hero-buttons button {
+  padding: 12px 25px;
+  margin: 0 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hero-buttons button:first-child {
+  background-color: #007BFF;
+  color: #fff;
+  font-weight: 600;
+}
+
+.hero-buttons .employee-btn {
+  background-color: #fff;
+  color: #007BFF;
+  font-weight: 600;
+  border:2px solid #007BFF;
+}
+
+.hero-buttons button:hover {
+  opacity: 0.9;
+}
+
+.hero-img {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 250px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* About Section */
+.about {
+  padding: 100px 20px 60px 20px;
+  max-width: 1200px;
+  margin: auto;
+  text-align: left;
+}
+
+.about h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #007BFF;
+}
+
+.about p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #333;
+}
+
+/* Features Section */
+.features {
+  padding: 80px 20px;
+  background: #f0f7ff;
+  text-align: center;
+}
+
+.features h2 {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #007BFF;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.feature-card {
+  background: #fff;
+  padding: 30px 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+.feature-card h3 {
+  margin-bottom: 15px;
+  color: black;
+  font-size: 1.3rem;
+}
+
+.feature-card p {
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Footer */
+footer {
+  padding: 30px 20px;
+  background: #0c3b69;
+  color: #fff;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+  .hero-content p {
+    font-size: 1rem;
+  }
+  .hero-buttons button {
+    margin: 10px 5px;
+    width: 140px;
+  }
+  .feature-cards {
+    grid-template-columns: 1fr;
+  }
+  .navbar {
+    padding: 0 20px;
+  }
+}

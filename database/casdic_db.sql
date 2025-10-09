@@ -115,3 +115,33 @@ CREATE TABLE IF NOT EXISTS publications (
   link VARCHAR(255),
   FOREIGN KEY (tech_id) REFERENCES technologies(tech_id) ON DELETE CASCADE
 );
+ -- 11. Users
+ CREATE TABLE IF NOT EXISTS users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE,
+  password VARCHAR(255),
+  role ENUM("user","employee") DEFAULT "user"
+);
+-- 12. Watchlist (tech "wishlist" / thunder feature)
+CREATE TABLE watchlist (
+  watch_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  item_type ENUM('tech','project','patent','pub'),
+  item_id INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+
+-- 13. Notifications (updates related to watched tech)
+CREATE TABLE IF NOT EXISTS notifications (
+  notification_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  tech_id INT,
+  message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_read BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (tech_id) REFERENCES technologies(tech_id) ON DELETE CASCADE
+);

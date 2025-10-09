@@ -1,8 +1,6 @@
 import db from "../config/db.js";
 
-/* ==============================
-   TECHNOLOGIES
-================================*/
+/* ========== TECHNOLOGIES ========== */
 export const getTechnologies = (req, res) => {
   db.query("SELECT * FROM technologies", (err, results) => {
     if (err) return res.status(500).json(err);
@@ -11,110 +9,29 @@ export const getTechnologies = (req, res) => {
 };
 
 export const addTechnology = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO technologies SET ?", data, (err, result) => {
+  db.query("INSERT INTO technologies SET ?", req.body, (err, result) => {
     if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
+    res.json({ id: result.insertId, ...req.body });
   });
 };
 
-/* ==============================
-   TECHNOLOGY SPECS
-================================*/
-export const getSpecsByTech = (req, res) => {
+export const updateTechnology = (req, res) => {
   const { tech_id } = req.params;
-  db.query("SELECT * FROM technology_specs WHERE tech_id = ?", [tech_id], (err, results) => {
+  db.query("UPDATE technologies SET ? WHERE tech_id = ?", [req.body, tech_id], (err) => {
     if (err) return res.status(500).json(err);
-    res.json(results);
+    res.json({ message: "Technology updated!" });
   });
 };
 
-export const addSpec = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO technology_specs SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   QUALIFICATION HW
-================================*/
-export const getHWByTech = (req, res) => {
+export const deleteTechnology = (req, res) => {
   const { tech_id } = req.params;
-  db.query("SELECT * FROM qualification_hw WHERE tech_id = ?", [tech_id], (err, results) => {
+  db.query("DELETE FROM technologies WHERE tech_id = ?", [tech_id], (err) => {
     if (err) return res.status(500).json(err);
-    res.json(results);
+    res.json({ message: "Technology deleted!" });
   });
 };
 
-export const addHW = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO qualification_hw SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   QUALIFICATION SW
-================================*/
-export const getSWByTech = (req, res) => {
-  const { tech_id } = req.params;
-  db.query("SELECT * FROM qualification_sw WHERE tech_id = ?", [tech_id], (err, results) => {
-    if (err) return res.status(500).json(err);
-    res.json(results);
-  });
-};
-
-export const addSW = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO qualification_sw SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   VERSIONS
-================================*/
-export const getVersionsByTech = (req, res) => {
-  const { tech_id } = req.params;
-  db.query("SELECT * FROM versions WHERE tech_id = ?", [tech_id], (err, results) => {
-    if (err) return res.status(500).json(err);
-    res.json(results);
-  });
-};
-
-export const addVersion = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO versions SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   COMPANIES
-================================*/
-export const getCompanies = (req, res) => {
-  db.query("SELECT * FROM companies", (err, results) => {
-    if (err) return res.status(500).json(err);
-    res.json(results);
-  });
-};
-
-export const addCompany = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO companies SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   PROJECTS
-================================*/
+/* ========== PROJECTS ========== */
 export const getProjects = (req, res) => {
   db.query("SELECT * FROM projects", (err, results) => {
     if (err) return res.status(500).json(err);
@@ -123,16 +40,54 @@ export const getProjects = (req, res) => {
 };
 
 export const addProject = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO projects SET ?", data, (err, result) => {
+  db.query("INSERT INTO projects SET ?", req.body, (err, result) => {
     if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
+    res.json({ id: result.insertId, ...req.body });
   });
 };
 
-/* ==============================
-   EMPLOYEES
-================================*/
+/* ========== COMPANIES ========== */
+export const getCompanies = (req, res) => {
+  db.query("SELECT * FROM companies", (err, results) => {
+    if (err) return res.status(500).json(err);
+    res.json(results);
+  });
+};
+
+export const addCompany = (req, res) => {
+  db.query("INSERT INTO companies SET ?", req.body, (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json({ id: result.insertId, ...req.body });
+  });
+};
+
+/* ========== PATENTS ========== */
+export const getPatents = (req, res) => {
+  const query = `
+    SELECT p.*, t.name AS tech_name
+    FROM patents p
+    LEFT JOIN technologies t ON p.tech_id = t.tech_id
+  `;
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json(err);
+    res.json(results);
+  });
+};
+
+/* ========== PUBLICATIONS ========== */
+export const getPublications = (req, res) => {
+  const query = `
+    SELECT pub.*, t.name AS tech_name
+    FROM publications pub
+    LEFT JOIN technologies t ON pub.tech_id = t.tech_id
+  `;
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json(err);
+    res.json(results);
+  });
+};
+
+/* ========== EMPLOYEES ========== */
 export const getEmployees = (req, res) => {
   db.query("SELECT * FROM employees", (err, results) => {
     if (err) return res.status(500).json(err);
@@ -140,48 +95,10 @@ export const getEmployees = (req, res) => {
   });
 };
 
-export const addEmployee = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO employees SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   PATENTS
-================================*/
-export const getPatentsByTech = (req, res) => {
-  const { tech_id } = req.params;
-  db.query("SELECT * FROM patents WHERE tech_id = ?", [tech_id], (err, results) => {
+/* ========== USERS ========== */
+export const getUsers = (req, res) => {
+  db.query("SELECT user_id, name, email, role FROM users", (err, results) => {
     if (err) return res.status(500).json(err);
     res.json(results);
-  });
-};
-
-export const addPatent = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO patents SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
-  });
-};
-
-/* ==============================
-   PUBLICATIONS
-================================*/
-export const getPublicationsByTech = (req, res) => {
-  const { tech_id } = req.params;
-  db.query("SELECT * FROM publications WHERE tech_id = ?", [tech_id], (err, results) => {
-    if (err) return res.status(500).json(err);
-    res.json(results);
-  });
-};
-
-export const addPublication = (req, res) => {
-  const data = req.body;
-  db.query("INSERT INTO publications SET ?", data, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ id: result.insertId, ...data });
   });
 };

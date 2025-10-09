@@ -1,0 +1,93 @@
+/* ================= Font ================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+body {
+  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f6f8fa;
+  color: #2c3e50;
+}
+option {
+  font-family: "Poppins", sans-serif;
+}
+/* ================= Hero ================= */
+.details-hero {
+  height: 180px;
+  background: linear-gradient(135deg, #1abc9c, #16a085);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.details-hero h1 {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+/* ================= Details Container ================= */
+.details-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.details-container h2 {
+  margin-top: 0;
+  color: #1abc9c;
+}
+
+.details-container p {
+  font-size: 16px;
+  margin: 10px 0;
+  line-height: 1.5;
+}
+
+.details-container a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.details-container a:hover {
+  text-decoration: underline;
+}
+
+/* ================= Reference Section ================= */
+.references {
+  margin-top: 20px;
+}
+
+.references h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.references ul {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.references li {
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #555;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 768px) {
+  .details-container {
+    padding: 15px;
+  }
+
+  .details-hero h1 {
+    font-size: 28px;
+  }
+}
