@@ -166,7 +166,7 @@ export default function UserDashboard() {
 
         {/* Search bar */}
         {["Projects", "Patents", "Publications"].includes(view) && (
-          <div className="search-bar">
+          <div className="search-bar1">
             <input type="text" placeholder={`Search ${view}...`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         )}

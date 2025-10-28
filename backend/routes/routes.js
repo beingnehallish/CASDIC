@@ -13,6 +13,37 @@ import { verifyToken, isEmployee, isUser } from "../middleware/auth.js";
 
 
 const router = express.Router();
+// routes/routes.js (add below existing routes)
+router.get("/dashboard-stats", verifyToken, async (req, res) => {
+  try {
+    const statsQueries = {
+      totalTech: "SELECT COUNT(*) as count FROM technologies",
+      active: "SELECT COUNT(*) as count FROM technologies WHERE status='In Use'",
+      deprecated: "SELECT COUNT(*) as count FROM technologies WHERE status='Deprecated'",
+      projects: "SELECT COUNT(*) as count FROM projects",
+      patents: "SELECT COUNT(*) as count FROM patents",
+      publications: "SELECT COUNT(*) as count FROM publications"
+    };
+
+    const stats = {};
+
+    for (const key in statsQueries) {
+      const [rows] = await new Promise((resolve, reject) => {
+        db.query(statsQueries[key], (err, result) => {
+          if (err) reject(err);
+          else resolve([result]);
+        });
+      });
+      stats[key] = rows[0].count;
+    }
+
+    res.json(stats);
+  } catch (err) {
+    console.error("Dashboard stats error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ✅ GET routes - accessible by both user & employee
 router.get("/technologies", verifyToken, (req, res) => getTechnologies(req, res, db));
 router.get("/projects", verifyToken, (req, res) => getProjects(req, res, db));
@@ -85,16 +116,17 @@ router.get("/employees", verifyToken, isEmployee, (req, res) => {
 });
 // Projects
 router.put("/projects/:project_id", verifyToken, isEmployee, (req, res) => {
-  const { name, description, start_date, end_date } = req.body;
+  const { name, description, start_date, end_date, budget, tech_id } = req.body;
   db.query(
-    "UPDATE projects SET name=?, description=?, start_date=?, end_date=? WHERE project_id=?",
-    [name, description, start_date, end_date, req.params.project_id],
+    "UPDATE projects SET name=?, description=?, start_date=?, end_date=?, budget=?, tech_id=? WHERE project_id=?",
+    [name, description, start_date, end_date, budget, tech_id, req.params.project_id],
     (err) => {
       if (err) return res.status(500).json({ error: "Server error" });
       res.json({ message: "Project updated successfully" });
     }
   );
 });
+
 
 // Companies
 router.put("/companies/:company_id", verifyToken, isEmployee, (req, res) => {

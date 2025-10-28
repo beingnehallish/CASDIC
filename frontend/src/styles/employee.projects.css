@@ -1,0 +1,437 @@
+
+/* ===== Section & Header ===== */
+.empsection {
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.empsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.empsection-header h2 {
+  font-size: 28px;
+  color: #333;
+}
+
+.empsection-header p {
+  font-size: 16px;
+  color: #666;
+}
+
+/* ===== Graphs Section ===== */
+.graph-card {
+  position: relative;       /* anchor popup relative to card */
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: visible;        /* allow popup to escape boundaries */
+  min-height: 300px;        /* ensures chart renders properly */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Popup styling that follows cursor */
+.graph-popup {
+  position: fixed;          /* fixed so it can follow the cursor */
+  pointer-events: auto;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 1rem;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  transform: translate(0, 0); /* will be updated dynamically via JS */
+  transition: transform 0.05s ease-out;
+}
+
+.graph-popup .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0.5rem;
+}
+
+.graph-popup .scrollable-table {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.graph-popup table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.graph-popup th,
+.graph-popup td {
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.graph-popup button {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.graph-popup button:hover {
+  background: #2563eb;
+}
+
+
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.popup-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #222;
+}
+
+.popup-header .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.scrollable-table {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.scrollable-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.scrollable-table th,
+.scrollable-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.scrollable-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* ===== Filters Panel ===== */
+.filters-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filters-panel input,
+.filters-panel select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.filters-panel button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.apply-btn {
+  background-color: #2980b9;
+  color: #fff;
+}
+
+.reset-btn {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+/* ===== Table ===== */
+.reports-results {
+  overflow-x: auto;
+}
+
+.reports-results table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.reports-results th,
+.reports-results td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.reports-results th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.reports-results tr:hover {
+  background-color: #fafafa;
+}
+
+/* ===== Action Buttons ===== */
+.tech-table-actions,
+.scrollable-table td button {
+  display: flex;
+  gap: 6px;
+}
+
+.add-btn {
+  padding: 8px 12px;
+  background-color: #0d1211;
+  color: #fff;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+.collab-btn{
+   padding: 8px 12px;
+  background-color: #0d1211;
+  color: #fff;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px; 
+  font-weight: 600;
+}
+.edit-btn {
+  padding: 5px 8px;
+  background-color: #f39c12;
+  color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.export-btn.pdf {
+  padding: 5px 8px;
+  background-color: #3498db;
+  color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.view-tech-btn,
+.view-tech-btn-inline {
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  background-color: #8e44ad;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.modal-content.large {
+  max-width: 700px;
+}
+
+.modal-content input {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.modal-content button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background-color: #22a085;
+  color: #fff;
+  margin-top: 10px;
+}
+
+.modal-content .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+/* Make buttons appear in a row with spacing */
+.action-buttons {
+  display: flex;
+  gap: 5px; /* space between buttons */
+}
+
+.action-buttons button {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.action-buttons .edit-btn {
+  background-color: #0275d8;
+  color: white;
+}
+
+.action-buttons .delete-btn {
+  background-color: #d9534f;
+  color: white;
+}
+
+.action-buttons .view-btn {
+  background-color: #5bc0de;
+  color: white;
+}
+.searchable-table .table-scroll {
+  max-height: 200px;  /* approx 5 rows */
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.searchable-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.searchable-table th, .searchable-table td {
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+/* === General Overlay === */
+.modal-overlay1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* === Base Modal === */
+.modal, .modal-content {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  animation: slideIn 0.25s ease;
+  position: relative;
+}
+
+/* === Close Button === */
+.modal .close-btn, .modal-content .close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* === Section Headings === */
+.modal h2 {
+  margin-bottom: 10px;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.modal h3 {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  color: #444;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+/* === Tables inside Modal === */
+.contrib-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+}
+
+.contrib-table th,
+.contrib-table td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.contrib-table th {
+  background: #f5f5f5;
+  font-weight: bold;
+}
+
+.contrib-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* === Profile Image inside Modal === */
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 15px 0;
+  display: block;
+}
+
+/* === Animation === */
+@keyframes slideIn {
+  from {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

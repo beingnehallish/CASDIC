@@ -1,0 +1,48 @@
+.empdashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center the whole dashboard content */
+  padding: 2rem;
+  background-color: #fff;
+}
+
+.empstats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+  gap: 2rem;
+  justify-items: center; /* center cards in each column */
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 1000px; /* optional: constrain total width */
+}
+
+.empstat-card {
+  background: #dfd8d8;
+  padding: 5rem 6rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 300px; /* keeps cards consistent */
+}
+
+.empstat-card.active {
+  background: #c9f7c2;
+}
+
+.empstat-card.deprecated {
+  background: #f9c2c2;
+}
+
+/* Responsive: stack cards on smaller screens */
+@media (max-width: 768px) {
+  .empstats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .empstats-grid {
+    grid-template-columns: 1fr;
+  }
+}

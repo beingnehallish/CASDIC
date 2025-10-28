@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/LandingPage.css";
-import heroImage from "../assets/drdo.png"; // optional hero image
+import heroImage from "../assets/drdo.png"; 
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -20,8 +20,8 @@ export default function LandingPage() {
       <header className="hero">
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <h1>CASDIC DRDO Technology Showcase</h1>
-          <p>Explore cutting-edge technologies developed by DRDO and CASDIC employees.</p>
+          <h1>CASDIC - DRDO Technology Showcase</h1>
+          <p>Explore cutting-edge technologies developed by DRDO and CASDIC to make the world a better place.</p>
           <div className="hero-buttons">
             <button onClick={() => navigate("/login")}> Login</button>
             <button className="employee-btn" onClick={() => navigate("/register")}>
