@@ -1,7 +1,6 @@
-// pages/employee/patents.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "../../styles/employee.projects.css";
+import "../../styles/employee.projects.css"; // Re-uses the same CSS as projects
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,25 +11,176 @@ import {
   Tooltip,
 } from "recharts";
 
+// This is the "Link Employee to Patent" modal, now as a separate component
+const LinkEmployeeModal = ({ show, onClose, patents, employees, token }) => {
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [selectedPatent, setSelectedPatent] = useState(null);
+  const [role, setRole] = useState("");
+  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [patentSearch, setPatentSearch] = useState("");
+
+  const filteredEmployees = employees.filter(emp => 
+    emp.name.toLowerCase().includes(employeeSearch.toLowerCase())
+  );
+  
+  const filteredPatents = patents.filter(p => 
+    p.title.toLowerCase().includes(patentSearch.toLowerCase())
+  );
+
+  const handleSave = async () => {
+    try {
+      if (selectedEmployees.length === 0 || !selectedPatent) {
+        alert("Select at least one employee and one patent");
+        return;
+      }
+      await Promise.all(
+        selectedEmployees.map(empId =>
+          axios.post(
+            "http://localhost:5000/api/employee_patents",
+            { employee_id: empId, patent_id: selectedPatent, role: role },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        )
+      );
+      alert("Employees linked to patent successfully!");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to link employees to patent");
+    }
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="modal-overlay link-modal-overlay" onClick={onClose}>
+      <div className="modal-content large link-modal-layout" onClick={(e) => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose}>✖</button>
+        <h2>Link Employees to Patent</h2>
+
+        {/* Role */}
+        <div className="link-modal-section"> 
+          <b>Role (e.g., Inventor):</b>
+          <input
+            type="text"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            placeholder="Lead Inventor / Co-Inventor"
+          />
+        </div>
+
+        {/* Patent Selection */}
+        <div className="link-modal-section">
+          <b>Select Patent:</b>
+          <input
+            type="text"
+            placeholder="Search patents..."
+            value={patentSearch}
+            onChange={(e) => setPatentSearch(e.target.value)}
+          />
+          <div className="searchable-table" style={{ maxHeight: "150px" }}>
+            <table>
+              <thead><tr><th>Select</th><th>ID</th><th>Title</th></tr></thead>
+              <tbody>
+                {filteredPatents.map(p => (
+                  <tr key={p.patent_id}>
+                    <td>
+                      <input
+                        type="radio"
+                        name="selectedPatent"
+                        checked={selectedPatent === p.patent_id}
+                        onChange={() => setSelectedPatent(p.patent_id)}
+                      />
+                    </td>
+                    <td>{p.patent_id}</td><td>{p.title}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Employees Selection */}
+        <div className="link-modal-section">
+          <b>Select Employees:</b>
+          <input
+            type="text"
+            placeholder="Search employees..."
+            value={employeeSearch}
+            onChange={(e) => setEmployeeSearch(e.target.value)}
+          />
+          <div className="searchable-table" style={{ maxHeight: "200px" }}>
+            <table>
+              <thead><tr><th>Select</th><th>ID</th><th>Name</th><th>Dept</th></tr></thead>
+              <tbody>
+                {filteredEmployees.map(emp => (
+                  <tr key={emp.employee_id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedEmployees.includes(emp.employee_id)}
+                        onChange={(e) => {
+                          const id = emp.employee_id;
+                          setSelectedEmployees(prev =>
+                            e.target.checked ? [...prev, id] : prev.filter(i => i !== id)
+                          );
+                        }}
+                      />
+                    </td>
+                    <td>{emp.employee_id}</td><td>{emp.name}</td><td>{emp.department}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <button className="save-btn" onClick={handleSave}>💾 Link</button>
+      </div>
+    </div>
+  );
+};
+
+// Main Page Component
 export default function PatentsPage() {
   const token = localStorage.getItem("token");
 
+  // Main Data
   const [patents, setPatents] = useState([]);
-  const [hoveredNode, setHoveredNode] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [technologies, setTechnologies] = useState([]);
+
+  // Graph Data
+  const [filedYearData, setFiledYearData] = useState([]);
+  const [grantedYearData, setGrantedYearData] = useState([]);
+
+  // Filters
   const [filters, setFilters] = useState({
     keyword: "",
     tech_id: "",
     yearFiled: "",
     yearGranted: "",
   });
-  const [modalData, setModalData] = useState({ show: false, patent: null, isEditing: false });
-  const [techModal, setTechModal] = useState({ show: false, techData: null });
 
-  const [addModal, setAddModal] = useState({ show: false, patent: { title: "", patent_number: "", date_filed: "", date_granted: "", tech_ids: [] } });
-  const [technologies, setTechnologies] = useState([]);
-  const [techSearch, setTechSearch] = useState("");
+  // Hub Modal State
+  const [hubModal, setHubModal] = useState({
+    show: false,
+    mode: 'add',
+    patentData: {},
+    relatedData: { inventors: [], tech: null }
+  });
+  const [modalActiveTab, setModalActiveTab] = useState('overview');
+  
+  // Inventors Tab State
+  const [inventorSearch, setInventorSearch] = useState("");
+  const [selectedInventors, setSelectedInventors] = useState([]);
+  const [inventorRole, setInventorRole] = useState("");
+  
+  // Link Employee Modal State
+  const [showLinkModal, setShowLinkModal] = useState(false);
 
-  // Fetch patents
+  // --- Data Fetching ---
+
   const fetchPatents = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/patents", {
@@ -42,55 +192,210 @@ export default function PatentsPage() {
         date_granted: p.date_granted ? p.date_granted.split("T")[0] : null,
       }));
       setPatents(formatted);
-    } catch (err) {
-      console.error(err);
+      processGraphData(formatted); // Process graph data after fetching
+    } catch (err)
+ {
+      console.error("Error fetching patents:", err);
     }
   };
 
-  // Fetch technologies
   useEffect(() => {
-    const fetchTechnologies = async () => {
+    // Fetch all required data on load
+    const fetchPageData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/technologies", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setTechnologies(res.data);
+        const [empRes, techRes] = await Promise.all([
+          axios.get("http://localhost:5000/api/employees", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:5000/api/technologies", { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        setEmployees(empRes.data);
+        setTechnologies(techRes.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching employees/tech:", err);
       }
     };
-    fetchTechnologies();
-  }, []);
-
-  useEffect(() => {
+    
     fetchPatents();
-  }, []);
+    fetchPageData();
+  }, [token]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this patent?")) return;
+  // --- Graph Data Processing ---
+  const processGraphData = (patentData) => {
+    const filedCounts = {};
+    const grantedCounts = {};
+    
+    patentData.forEach(p => {
+      if (p.date_filed) {
+        const year = p.date_filed.split("-")[0];
+        filedCounts[year] = (filedCounts[year] || 0) + 1;
+      }
+      if (p.date_granted) {
+        const year = p.date_granted.split("-")[0];
+        grantedCounts[year] = (grantedCounts[year] || 0) + 1;
+      }
+    });
+    
+    setFiledYearData(Object.entries(filedCounts).map(([year, count]) => ({ year, count })));
+    setGrantedYearData(Object.entries(grantedCounts).map(([year, count]) => ({ year, count })));
+  };
+
+  // --- Modal Logic ---
+
+  const resetHubModal = () => {
+    setHubModal({
+      show: false,
+      mode: 'add',
+      patentData: {},
+      relatedData: { inventors: [], tech: null }
+    });
+    setModalActiveTab('overview');
+    setInventorSearch("");
+    setSelectedInventors([]);
+    setInventorRole("");
+  };
+
+  const handleOpenAddModal = () => {
+    resetHubModal();
+    setHubModal(prev => ({
+      ...prev,
+      show: true,
+      mode: 'add',
+      patentData: {
+        title: "",
+        patent_number: "",
+        date_filed: "",
+        date_granted: null,
+        tech_id: ""
+      }
+    }));
+  };
+
+  const handleOpenManageModal = async (patent) => {
+    resetHubModal();
+    setHubModal(prev => ({
+      ...prev,
+      show: true,
+      mode: 'edit',
+      patentData: patent
+    }));
+
+    // Fetch related tech and inventors
     try {
-      await axios.delete(`http://localhost:5000/api/patents/${id}`, {
+      if (patent.tech_id) {
+        const techRes = await axios.get(
+          `http://localhost:5000/api/projects/technologies/${patent.tech_id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setHubModal(prev => ({
+          ...prev,
+          relatedData: { ...prev.relatedData, tech: techRes.data }
+        }));
+      }
+      // You would also fetch linked inventors here, e.g.:
+      // const inventorsRes = await axios.get(`/api/patents/${patent.patent_id}/inventors`, ...);
+      // setHubModal(prev => ({ ...prev, relatedData: { ...prev.relatedData, inventors: inventorsRes.data } }));
+    } catch (err) {
+      console.error("Failed to fetch related patent data", err);
+    }
+  };
+
+  const handleModalFormChange = (e) => {
+    const { name, value } = e.target;
+    setHubModal(prev => ({
+      ...prev,
+      patentData: {
+        ...prev.patentData,
+        [name]: value === "" ? null : value
+      }
+    }));
+  };
+
+  const handleSavePatent = async () => {
+    const { mode, patentData } = hubModal;
+    const confirmed = window.confirm(mode === 'add' ? "Add new patent?" : "Update this patent?");
+    if (!confirmed) return;
+
+    // Basic validation
+    if (!patentData.title || !patentData.patent_number || !patentData.tech_id) {
+      alert("Please fill in Title, Patent Number, and select a Technology.");
+      return;
+    }
+
+    try {
+      if (mode === 'add') {
+        const res = await axios.post("http://localhost:5000/api/patents", patentData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Switch to edit mode
+        setHubModal(prev => ({
+          ...prev,
+          mode: 'edit',
+          patentData: { ...prev.patentData, patent_id: res.data.patent_id }
+        }));
+        setModalActiveTab('inventors');
+        alert("Patent added. You can now add inventors.");
+      } else {
+        await axios.put(`http://localhost:5000/api/patents/${patentData.patent_id}`, patentData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert("Patent updated.");
+      }
+      fetchPatents(); // Refresh main list
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save patent.");
+    }
+  };
+
+  // --- Delete Patent ---
+  const handleDeletePatent = async (patentId) => {
+    if (!window.confirm("Are you sure you want to delete this patent?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/patents/${patentId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      alert("Patent deleted.");
       fetchPatents();
     } catch (err) {
       console.error(err);
+      alert("Failed to delete patent. It may be linked to employees.");
     }
   };
 
-  const handleViewTech = async (tech_id) => {
-    if (!tech_id) return;
+  // --- Inventors Tab Logic ---
+  const handleLinkInventors = async () => {
+    const { patent_id } = hubModal.patentData;
+    if (selectedInventors.length === 0) {
+      alert("Please select at least one employee.");
+      return;
+    }
+
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/projects/technologies/${tech_id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const linkPromises = selectedInventors.map(empId => 
+        axios.post(
+          "http://localhost:5000/api/employee_patents",
+          { employee_id: empId, patent_id: patent_id, role: inventorRole || "Inventor" },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
       );
-      setTechModal({ show: true, techData: res.data });
+      await Promise.all(linkPromises);
+      alert(`Successfully linked ${selectedInventors.length} inventors.`);
+      
+      setSelectedInventors([]);
+      setInventorRole("");
+      // You would refresh the inventors list here
+      // await fetchInventors(patent_id);
+
     } catch (err) {
       console.error(err);
+      alert("Failed to link inventors.");
     }
   };
 
+  const filteredEmployeesForModal = employees.filter(emp => 
+    emp.name.toLowerCase().includes(inventorSearch.toLowerCase())
+  );
+
+  // --- Filtering for main table ---
   const filteredPatents = patents.filter(p => {
     const kw = (filters.keyword || "").toLowerCase();
     return (
@@ -102,55 +407,20 @@ export default function PatentsPage() {
     );
   });
 
-  const yearCounts = {};
-  patents.forEach(p => {
-    if (p.date_filed) {
-      const year = p.date_filed.split("-")[0];
-      yearCounts[year] = (yearCounts[year] || 0) + 1;
-    }
-  });
-  const yearData = Object.entries(yearCounts).map(([year, count]) => ({ year, count }));
-
-  const [employeeLinkModal, setEmployeeLinkModal] = useState({
-  show: false,
-  patent_id: null,
-  employee_ids: [],
-  role: "",
-});
-const [employees, setEmployees] = useState([]);
-useEffect(() => {
-  const fetchEmployees = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/employees", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setEmployees(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  fetchEmployees();
-}, []);
+  // --- Render ---
 
   return (
     <div className="empsection">
       <div className="tech-table-actions">
-        <button className="add-btn" onClick={() => setAddModal({ show: true, patent: { title: "", patent_number: "", date_filed: "", date_granted: "", tech_ids: [] } })}>
+        <button className="add-btn" onClick={handleOpenAddModal}>
           ➕ Add Patent
         </button>
         <button
-  className="add-btn"
-  onClick={() =>
-    setEmployeeLinkModal({
-      show: true,
-      patent_id: null,
-      employee_ids: [],
-      role: "",
-    })
-  }
->
-  🔗 Link Employee to Patent
-</button>
+          className="add-btn"
+          onClick={() => setShowLinkModal(true)}
+        >
+          🔗 Link Employee to Patent
+        </button>
       </div>
 
       <div className="empsection-header">
@@ -158,24 +428,29 @@ useEffect(() => {
         <p>Total Patents: {patents.length}</p>
       </div>
 
-      {/* ===== Graph Section ===== */}
+      {/* ===== Graph Section (Now 2 Graphs) ===== */}
       <div className="tech-graphs">
         <div className="graph-card">
           <h3>Patents by Year Filed</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={yearData}>
+            <BarChart data={filedYearData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="year" />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Bar
-                dataKey="count"
-                fill="#2980b9"
-                onMouseEnter={(data, index, e) =>
-                  setHoveredNode({ ...data, mouseX: e.clientX, mouseY: e.clientY })
-                }
-                onMouseLeave={() => setHoveredNode(null)}
-              />
+              <Bar dataKey="count" fill="#2980b9" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="graph-card">
+          <h3>Patents by Year Granted</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={grantedYearData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="year" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#27ae60" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -220,6 +495,7 @@ useEffect(() => {
               <th>ID</th>
               <th>Title</th>
               <th>Patent Number</th>
+              <th>Tech ID</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -229,17 +505,22 @@ useEffect(() => {
                 <td>{p.patent_id}</td>
                 <td>{p.title}</td>
                 <td>{p.patent_number}</td>
+                <td>{p.tech_id}</td>
                 <td>
-                  <button
-                    className="edit-btn"
-                    onClick={() =>
-                      setModalData({ show: true, patent: p, isEditing: true })
-                    }
-                  >
-                    ✎
-                  </button>
-                  <button className="delete-btn" onClick={() => handleDelete(p.patent_id)}>🗑</button>
-                  <button className="save-btn" onClick={() => setModalData({ show: true, patent: p, isEditing: false })}>View More</button>
+                  <div className="action-buttons-wrapper">
+                    <button
+                      className="edit-btn"
+                      onClick={() => handleOpenManageModal(p)}
+                    >
+                      ✎ Manage
+                    </button>
+                    <button 
+                      className="delete-btn"
+                      onClick={() => handleDeletePatent(p.patent_id)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -247,389 +528,158 @@ useEffect(() => {
         </table>
       </div>
 
-      {/* ===== Add Patent Modal ===== */}
-      {addModal.show && (
-        <div className="modal-overlay" onClick={() => setAddModal({ show: false, patent: { title: "", patent_number: "", date_filed: "", date_granted: "", tech_ids: [] } })}>
+      {/* ===== Bulk Link Employee Modal ===== */}
+      <LinkEmployeeModal
+        show={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        patents={patents}
+        employees={employees}
+        token={token}
+      />
+
+      {/* ===== Manage Hub Modal ===== */}
+      {hubModal.show && (
+        <div className="modal-overlay" onClick={resetHubModal}>
           <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setAddModal({ show: false, patent: { title: "", patent_number: "", date_filed: "", date_granted: "", tech_ids: [] } })}>✖</button>
-            <h2>Add Patent</h2>
+            <button className="close-btn" onClick={resetHubModal}>✖</button>
+            <h2>{hubModal.mode === 'add' ? "Add New Patent" : `Manage: ${hubModal.patentData.title}`}</h2>
 
-            <p>
-              <b>Title:</b>
-              <input
-                type="text"
-                value={addModal.patent.title}
-                onChange={(e) => setAddModal(prev => ({ ...prev, patent: { ...prev.patent, title: e.target.value } }))}
-              />
-            </p>
-
-            <p>
-              <b>Patent Number:</b>
-              <input
-                type="text"
-                value={addModal.patent.patent_number}
-                onChange={(e) => setAddModal(prev => ({ ...prev, patent: { ...prev.patent, patent_number: e.target.value } }))}
-              />
-            </p>
-
-            <p>
-              <b>Date Filed:</b>
-              <input
-                type="date"
-                value={addModal.patent.date_filed}
-                onChange={(e) => setAddModal(prev => ({ ...prev, patent: { ...prev.patent, date_filed: e.target.value } }))}
-              />
-            </p>
-
-            <p>
-              <b>Date Granted:</b>
-              <input
-                type="date"
-                value={addModal.patent.date_granted}
-                onChange={(e) => setAddModal(prev => ({ ...prev, patent: { ...prev.patent, date_granted: e.target.value } }))}
-              />
-            </p>
-
-<p>
-  <b>Technology:</b>
-  <input
-    type="text"
-    placeholder="🔎 Search techs..."
-    value={techSearch}
-    onChange={(e) => setTechSearch(e.target.value)}
-    style={{ marginLeft: "0.5rem", marginBottom: "0.5rem", width: "100%" }}
-  />
-  <div
-    className="searchable-table"
-    style={{
-      maxHeight: "200px",
-      overflowY: "auto",
-      border: "1px solid #ccc",
-      marginTop: "0.5rem",
-    }}
-  >
-    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-      <thead>
-        <tr style={{ background: "#f0f0f0" }}>
-          <th style={{ padding: "0.5rem", textAlign: "center" }}>Select</th>
-          <th style={{ padding: "0.5rem", textAlign: "center" }}>Tech ID</th>
-          <th style={{ padding: "0.5rem", textAlign: "left" }}>Name</th>
-        </tr>
-      </thead>
-      <tbody>
-        {technologies
-          .filter((t) => t.name.toLowerCase().includes(techSearch.toLowerCase()))
-          .map((tech) => (
-            <tr key={tech.tech_id} style={{ borderBottom: "1px solid #eee" }}>
-              <td style={{ textAlign: "center", padding: "0.25rem" }}>
-                <input
-                  type="checkbox"
-                  checked={addModal.patent.tech_ids.includes(tech.tech_id)}
-                  onChange={(e) => {
-                    const selected = addModal.patent.tech_ids;
-                    if (e.target.checked) {
-                      setAddModal((prev) => ({
-                        ...prev,
-                        patent: { ...prev.patent, tech_ids: [...selected, tech.tech_id] },
-                      }));
-                    } else {
-                      setAddModal((prev) => ({
-                        ...prev,
-                        patent: { ...prev.patent, tech_ids: selected.filter((id) => id !== tech.tech_id) },
-                      }));
-                    }
-                  }}
-                />
-              </td>
-              <td style={{ textAlign: "center", padding: "0.25rem" }}>{tech.tech_id}</td>
-              <td style={{ padding: "0.25rem" }}>{tech.name}</td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
-  </div>
-</p>
-
-
-            <button
-              className="save-btn"
-              onClick={async () => {
-                try {
-                  const { patent } = addModal;
-                  if (!patent.title || !patent.patent_number || patent.tech_ids.length === 0) {
-                    alert("Please fill all fields and select at least one technology");
-                    return;
-                  }
-                  await Promise.all(
-                    patent.tech_ids.map(tech_id =>
-                      axios.post("http://localhost:5000/api/patents", { ...patent, tech_id }, { headers: { Authorization: `Bearer ${token}` } })
-                    )
-                  );
-                  setAddModal({ show: false, patent: { title: "", patent_number: "", date_filed: "", date_granted: "", tech_ids: [] } });
-                  fetchPatents();
-                } catch (err) {
-                  console.error(err);
-                  alert("Failed to add patent");
-                }
-              }}
-            >
-              💾 Add
-            </button>
-          </div>
-        </div>
-      )}
-
-{employeeLinkModal.show && (
-  <div className="modal-overlay" onClick={() => setEmployeeLinkModal({ show: false, patent_id: null, employee_ids: [], role: "", searchEmployees: "", searchPatents: "" })}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <button className="close-btn" onClick={() => setEmployeeLinkModal({ show: false, patent_id: null, employee_ids: [], role: "", searchEmployees: "", searchPatents: "" })}>✖</button>
-      <h2>Link Employee(s) to Patent</h2>
-
-      {/* ===== Select Patent Table ===== */}
-      <p>
-        <b>Select Patent:</b>
-        <input
-          type="text"
-          placeholder="Search patents..."
-          value={employeeLinkModal.searchPatents || ""}
-          onChange={(e) => setEmployeeLinkModal(prev => ({ ...prev, searchPatents: e.target.value }))}
-        />
-        <div style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ccc" }}>
-          <table style={{ width: "100%" }}>
-            <thead>
-              <tr><th>Select</th><th>ID</th><th>Title</th></tr>
-            </thead>
-            <tbody>
-              {patents
-                .filter(p => !employeeLinkModal.searchPatents || p.title.toLowerCase().includes(employeeLinkModal.searchPatents.toLowerCase()))
-                .map(p => (
-                  <tr key={p.patent_id}>
-                    <td>
-                      <input
-                        type="radio"
-                        name="selectedPatent"
-                        checked={employeeLinkModal.patent_id === p.patent_id}
-                        onChange={() => setEmployeeLinkModal(prev => ({ ...prev, patent_id: p.patent_id }))}
-                      />
-                    </td>
-                    <td>{p.patent_id}</td>
-                    <td>{p.title}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </p>
-
-      {/* ===== Select Employees Table ===== */}
-      <p>
-        <b>Select Employees:</b>
-        <input
-          type="text"
-          placeholder="Search employees..."
-          value={employeeLinkModal.searchEmployees || ""}
-          onChange={(e) => setEmployeeLinkModal(prev => ({ ...prev, searchEmployees: e.target.value }))}
-        />
-        <div style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ccc" }}>
-          <table style={{ width: "100%" }}>
-            <thead>
-              <tr><th>Select</th><th>ID</th><th>Name</th><th>Department</th></tr>
-            </thead>
-            <tbody>
-              {employees
-                .filter(emp => !employeeLinkModal.searchEmployees || emp.name.toLowerCase().includes(employeeLinkModal.searchEmployees.toLowerCase()))
-                .map(emp => (
-                  <tr key={emp.employee_id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={employeeLinkModal.employee_ids.includes(emp.employee_id)}
-                        onChange={(e) => {
-                          const selected = employeeLinkModal.employee_ids;
-                          if (e.target.checked) {
-                            setEmployeeLinkModal(prev => ({ ...prev, employee_ids: [...selected, emp.employee_id] }));
-                          } else {
-                            setEmployeeLinkModal(prev => ({ ...prev, employee_ids: selected.filter(id => id !== emp.employee_id) }));
-                          }
-                        }}
-                      />
-                    </td>
-                    <td>{emp.employee_id}</td>
-                    <td>{emp.name}</td>
-                    <td>{emp.department}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </p>
-
-      {/* ===== Role Field ===== */}
-      <p>
-        <b>Role:</b>
-        <input
-          type="text"
-          value={employeeLinkModal.role || ""}
-          onChange={(e) => setEmployeeLinkModal(prev => ({ ...prev, role: e.target.value }))}
-        />
-      </p>
-
-      {/* ===== Submit Button ===== */}
-      <button
-        className="save-btn"
-        onClick={async () => {
-          if (!employeeLinkModal.patent_id || employeeLinkModal.employee_ids.length === 0) {
-            alert("Select a patent and at least one employee");
-            return;
-          }
-          try {
-            await Promise.all(
-              employeeLinkModal.employee_ids.map(emp_id =>
-                axios.post(
-                  "http://localhost:5000/api/employee_patents",
-                  { patent_id: employeeLinkModal.patent_id, employee_id: emp_id, role: employeeLinkModal.role },
-                  { headers: { Authorization: `Bearer ${token}` } }
-                )
-              )
-            );
-            alert("Employees linked to patent!");
-            setEmployeeLinkModal({ show: false, patent_id: null, employee_ids: [], role: "", searchEmployees: "", searchPatents: "" });
-          } catch (err) {
-            console.error(err);
-            alert("Failed to link employees");
-          }
-        }}
-      >
-        💾 Link
-      </button>
-    </div>
-  </div>
-)}
-
-      {/* ===== Edit/View Patent Modal ===== */}
-      {modalData.show && modalData.patent && (
-        <div className="modal-overlay" onClick={() => setModalData({ show: false, patent: null, isEditing: false })}>
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setModalData({ show: false, patent: null, isEditing: false })}>✖</button>
-
-            <h2>
-              {modalData.isEditing ? (
-                <input
-                  type="text"
-                  value={modalData.patent.title}
-                  onChange={(e) => setModalData(prev => ({ ...prev, patent: { ...prev.patent, title: e.target.value } }))}
-                />
-              ) : (
-                modalData.patent.title
-              )}
-            </h2>
-
-            <p>
-              <b>Patent Number:</b>{" "}
-              {modalData.isEditing ? (
-                <input
-                  type="text"
-                  value={modalData.patent.patent_number}
-                  onChange={(e) => setModalData(prev => ({ ...prev, patent: { ...prev.patent, patent_number: e.target.value } }))}
-                />
-              ) : (
-                modalData.patent.patent_number
-              )}
-            </p>
-
-            <p>
-              <b>Technology ID:</b>{" "}
-              {modalData.isEditing ? (
-                <input
-                  type="number"
-                  value={modalData.patent.tech_id || ""}
-                  onChange={(e) => setModalData(prev => ({ ...prev, patent: { ...prev.patent, tech_id: e.target.value } }))}
-                />
-              ) : (
-                modalData.patent.tech_id
-              )}
-              {modalData.patent.tech_id && !modalData.isEditing && (
-                <button className="view-tech-btn-inline" onClick={() => handleViewTech(modalData.patent.tech_id)}>🔍 View Tech</button>
-              )}
-            </p>
-
-            <p>
-              <b>Date Filed:</b>{" "}
-              {modalData.isEditing ? (
-                <input
-                  type="date"
-                  value={modalData.patent.date_filed || ""}
-                  onChange={(e) => setModalData(prev => ({ ...prev, patent: { ...prev.patent, date_filed: e.target.value } }))}
-                />
-              ) : (
-                modalData.patent.date_filed
-              )}
-            </p>
-
-            <p>
-              <b>Date Granted:</b>{" "}
-              {modalData.isEditing ? (
-                <input
-                  type="date"
-                  value={modalData.patent.date_granted || ""}
-                  onChange={(e) => setModalData(prev => ({ ...prev, patent: { ...prev.patent, date_granted: e.target.value } }))}
-                />
-              ) : (
-                modalData.patent.date_granted || "—"
-              )}
-            </p>
-
-            {/* Update button */}
-            {modalData.isEditing && (
+            <div className="modal-tabs">
               <button
-                className="save-btn"
-                onClick={async () => {
-                  try {
-                    const p = modalData.patent;
-                    if (!p.title || !p.patent_number || !p.tech_id) {
-                      alert("Fill all fields before updating");
-                      return;
-                    }
-                    await axios.put(
-                      `http://localhost:5000/api/patents/${p.patent_id}`,
-                      {
-                        title: p.title,
-                        patent_number: p.patent_number,
-                        date_filed: p.date_filed || null,
-                        date_granted: p.date_granted || null,
-                        tech_id: p.tech_id,
-                      },
-                      { headers: { Authorization: `Bearer ${token}` } }
-                    );
-                    setModalData({ show: false, patent: null, isEditing: false });
-                    fetchPatents();
-                  } catch (err) {
-                    console.error(err);
-                    alert("Failed to update patent");
-                  }
-                }}
+                className={`tab-btn ${modalActiveTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setModalActiveTab('overview')}
               >
-                💾 Update
+                Overview
               </button>
-            )}
-          </div>
-        </div>
-      )}
+              <button
+                className={`tab-btn ${modalActiveTab === 'inventors' ? 'active' : ''}`}
+                onClick={() => setModalActiveTab('inventors')}
+                disabled={hubModal.mode === 'add'}
+              >
+                Inventors
+              </button>
+              <button
+                className={`tab-btn ${modalActiveTab === 'tech' ? 'active' : ''}`}
+                onClick={() => setModalActiveTab('tech')}
+                disabled={hubModal.mode === 'add' || !hubModal.patentData.tech_id}
+              >
+                Linked Tech
+              </button>
+            </div>
 
-      {/* ===== Tech Modal ===== */}
-      {techModal.show && techModal.techData && (
-        <div className="modal-overlay" onClick={() => setTechModal({ show: false, techData: null })}>
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setTechModal({ show: false, techData: null })}>✖</button>
-            <h2>{techModal.techData.name}</h2>
-            <p><b>Category:</b> {techModal.techData.category}</p>
-            <p><b>Status:</b> {techModal.techData.status}</p>
-            <p><b>TRL:</b> {techModal.techData.trl_start} → {techModal.techData.trl_achieved}</p>
-            <p><b>Description:</b> {techModal.techData.trl_description}</p>
-            <p><b>Budget:</b> ₹{Number(techModal.techData.budget).toLocaleString()}</p>
-            <p><b>Security Level:</b> {techModal.techData.security_level}</p>
-            <p><b>Location:</b> {techModal.techData.location}</p>
-            <p><b>Tech Stack:</b> {techModal.techData.tech_stack}</p>
+            <div className="modal-tab-panel">
+              {/* --- Overview Tab (Add/Edit Form) --- */}
+              {modalActiveTab === 'overview' && (
+                <div className="modal-tab-content vertical-form">
+                  <label>Patent Title</label>
+                  <input name="title" placeholder="Title" value={hubModal.patentData.title || ""} onChange={handleModalFormChange} />
+                  <label>Patent Number</label>
+                  <input name="patent_number" placeholder="Patent Number" value={hubModal.patentData.patent_number || ""} onChange={handleModalFormChange} />
+                  <label>Date Filed</label>
+                  <input name="date_filed" type="date" value={hubModal.patentData.date_filed || ""} onChange={handleModalFormChange} />
+                  <label>Date Granted (optional)</label>
+                  <input name="date_granted" type="date" value={hubModal.patentData.date_granted || ""} onChange={handleModalFormChange} />
+                  <label>Linked Technology</label>
+                  <select
+                    name="tech_id"
+                    value={hubModal.patentData.tech_id || ""}
+                    onChange={handleModalFormChange}
+                  >
+                    <option value="">-- Select a Technology --</option>
+                    {technologies.map(tech => (
+                      <option key={tech.tech_id} value={tech.tech_id}>
+                        {tech.name} (ID: {tech.tech_id})
+                      </option>
+                    ))}
+                  </select>
+                  
+                  <div className="form-buttons">
+                    <button className="save-btn" onClick={handleSavePatent}>
+                      {hubModal.mode === 'add' ? "Save and Continue" : "Save Changes"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* --- Inventors Tab --- */}
+              {modalActiveTab === 'inventors' && (
+                <div className="modal-tab-content">
+                  <h4>Link Inventors</h4>
+                  <p>
+                    Select employees to link as inventors for this patent.
+                  </p>
+                  
+                  {/* You would also show a list of *current* inventors here */}
+                  {/* <div className="current-team-list"> ... </div> */}
+
+                  <div className="link-modal-section">
+                    <b>Role for new inventor(s):</b>
+                    <input
+                      type="text"
+                      value={inventorRole}
+                      onChange={(e) => setInventorRole(e.target.value)}
+                      placeholder="E.g., Lead Inventor, Co-Inventor"
+                    />
+                  </div>
+                  
+                  <div className="link-modal-section">
+                    <b>Available Employees:</b>
+                    <input
+                      type="text"
+                      placeholder="Search employees..."
+                      value={inventorSearch}
+                      onChange={(e) => setInventorSearch(e.target.value)}
+                    />
+                    <div className="searchable-table" style={{ maxHeight: "200px" }}>
+                      <table>
+                        <thead><tr><th>Select</th><th>ID</th><th>Name</th><th>Dept</th></tr></thead>
+                        <tbody>
+                          {filteredEmployeesForModal.map(emp => (
+                            <tr key={emp.employee_id}>
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedInventors.includes(emp.employee_id)}
+                                  onChange={(e) => {
+                                    const id = emp.employee_id;
+                                    setSelectedInventors(prev =>
+                                      e.target.checked ? [...prev, id] : prev.filter(i => i !== id)
+                                    );
+                                  }}
+                                />
+                              </td>
+                              <td>{emp.employee_id}</td><td>{emp.name}</td><td>{emp.department}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div className="form-buttons">
+                    <button className="save-btn" onClick={handleLinkInventors}>
+                      💾 Link Selected Inventors
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* --- Linked Tech Tab --- */}
+              {modalActiveTab === 'tech' && (
+                <div className="modal-tab-content">
+                  <h4>Linked Technology Details</h4>
+                  {hubModal.relatedData.tech ? (
+                    <div>
+                      <h3>{hubModal.relatedData.tech.name}</h3>
+                      <p><b>Category:</b> {hubModal.relatedData.tech.category}</p>
+                      <p><b>Status:</b> {hubModal.relatedData.tech.status}</p>
+                      <p><b>TRL:</b> {hubModal.relatedData.tech.trl_achieved}</p>
+                    </div>
+                  ) : (
+                    <p>No technology linked or details not found.</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
