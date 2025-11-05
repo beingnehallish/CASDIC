@@ -1,0 +1,176 @@
+/* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+body, input, select, button {
+  font-family: 'Poppins', sans-serif;
+}
+
+.rpt-section {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #202124;
+}
+
+.rpt-section h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.rpt-section p {
+  font-size: 0.95rem;
+  color: #5f6368;
+  margin-bottom: 1.5rem;
+}
+
+/* Filters panel */
+.rpt-filters-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+}
+
+.rpt-category-select {
+  flex: 1 1 200px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #dadce0;
+  font-weight: 500;
+}
+
+.rpt-subfilters {
+  flex: 3 1 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.rpt-subfilters input,
+.rpt-subfilters select {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #dadce0;
+  font-size: 0.9rem;
+  flex: 1 1 150px;
+}
+
+/* Pill buttons */
+.rpt-btn.pill {
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  background-color: #1a73e8;
+  color: white;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.rpt-btn.pill:hover:not(:disabled) {
+  background-color: #1669c1;
+}
+
+.rpt-btn.pill.reset {
+  background-color: #e8eaed;
+  color: #202124;
+}
+
+.rpt-btn.pill.reset:hover:not(:disabled) {
+  background-color: #dadce0;
+}
+
+/* Export buttons */
+.rpt-export-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Table */
+.rpt-results {
+  overflow-x: auto;
+}
+
+.rpt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.rpt-table thead {
+  background-color: #f1f3f4;
+}
+
+.rpt-table th,
+.rpt-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.rpt-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.rpt-table tbody tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+/* Pagination */
+.rpt-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.rpt-pagination button,
+.rpt-pagination select {
+  padding: 0.4rem 0.8rem;
+  border-radius: 50px;
+  border: 1px solid #dadce0;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.rpt-pagination button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.rpt-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error message */
+.rpt-error {
+  color: #d93025;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .rpt-subfilters {
+    flex-direction: column;
+  }
+  .rpt-filters-panel {
+    flex-direction: column;
+  }
+  .rpt-category-select {
+    flex: 1 1 100%;
+  }
+}
