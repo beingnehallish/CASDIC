@@ -1,0 +1,163 @@
+/* src/styles/Settings.css */
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two-column layout */
+  gap: 24px;
+  padding: 2rem;
+  width: 100%;
+}
+
+.settings-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #d1d9e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+
+.settings-card h3 {
+  font-size: 1.25rem;
+  color: #1c1e21;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f0f2f5;
+  padding-bottom: 10px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.settings-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #343a40;
+  margin-bottom: -5px;
+}
+
+.settings-form input[type="text"],
+.settings-form input[type="email"],
+.settings-form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d9e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box; /* Important for padding */
+}
+
+.settings-form input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+/* Re-using button styles from your login page */
+.settings-form button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: auto;
+  align-self: flex-start;
+}
+
+.settings-form button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+.settings-form button[type="submit"]:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.form-message {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* --- Toggle Switch Styles --- */
+.toggle-switch {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.toggle-switch input[type="checkbox"] {
+  grid-row: 1 / span 2;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+}
+.toggle-switch label {
+  grid-column: 2;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 0;
+}
+.toggle-switch span {
+  grid-column: 2;
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* --- Danger Zone Styles --- */
+.danger-zone {
+  border-color: #dc3545;
+}
+.danger-zone h3 {
+  color: #dc3545;
+}
+
+.account-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.account-actions button {
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn {
+  background-color: #6c757d;
+  color: white;
+}
+.logout-btn:hover {
+  background-color: #5a6268;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.danger-text {
+  font-size: 0.9rem;
+  color: #5a6268;
+  margin: 0;
+}
+
+/* Make it stack on small screens */
+@media (max-width: 900px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+}
