@@ -7,7 +7,7 @@ import {
   getProjects, addProject,
   getCompanies, addCompany,
   getPatents, getPublications
-} from "../controllers/controller.js";
+} from "../middleware/controllers/controller.js";
 
 import { verifyToken, isEmployee, isUser } from "../middleware/auth.js";
 

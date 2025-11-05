@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import db from "../config/db.js";
+import db from "../../config/db.js";
 
 export const changeEmployeePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
