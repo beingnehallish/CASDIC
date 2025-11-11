@@ -1,0 +1,540 @@
+-- extract zip file here  ->  C:\xampp\mysql\data\
+
+-- CASDIC (Centre for Airborne Systems) Sample Database Population
+-- Note: This is realistic sample data for development purposes
+
+USE casdic_db;
+
+-- ============================================
+-- 1. TECHNOLOGIES
+-- ============================================
+INSERT INTO technologies (name, category, production_start_date, last_usage_date, status, trl_start, trl_achieved, trl_description, budget, security_level, location, tech_stack, salient_features, achievements, image_path, dev_proj_name, dev_proj_number, dev_proj_code, funding_details) VALUES
+('Airborne Early Warning & Control System', 'Surveillance', '2015-03-15', NULL, 'In Use', 3, 9, 'Operational system deployed on multiple platforms', 285000000.00, 'Top Secret', 'CASDIC Bangalore', 'Active Phased Array Radar, Software Defined Radio, Real-time OS, C++, Ada', '360-degree coverage, 400km range, Track 300+ targets, IFF Mode-S', 'Successfully integrated with IAF platforms, Indigenous AESA radar', '/images/tech/aewc.jpg', 'NETRA AEW&C Development', 'DRDO/CASDIC/2009/01', 'AEWC-MK1', 'MoD Grant: Rs 2100 Cr, Phase-wise release'),
+
+('Software Defined Radio System', 'Communication', '2018-06-01', NULL, 'In Use', 4, 8, 'Multi-band, multi-mode tactical communication system', 45000000.00, 'Confidential', 'CASDIC Bangalore', 'FPGA (Xilinx Zynq), GNU Radio, C/C++, VHDL, DSP algorithms', 'Frequency: 30-512 MHz, Waveform agile, AES-256 encryption, Low-LPI/LPD', 'Deployed in 15+ aircraft types, Inter-operable with NATO standards', '/images/tech/sdr.jpg', 'Tactical SDR Development Program', 'DRDO/CASDIC/2014/07', 'SDR-TAC-V2', 'Self-funded initially, Later MoD: Rs 350 Cr'),
+
+('Mission Computer for Fighter Aircraft', 'Avionics', '2012-09-20', NULL, 'In Use', 5, 9, 'Core avionics computer for mission management', 78000000.00, 'Top Secret', 'CASDIC Bangalore', 'PowerPC Architecture, DO-178B Level A Software, Ada, Real-time Linux', '32-bit processing, Mil-Std-1553B, ARINC-429, 4x redundancy', 'Heart of LCA Tejas avionics, 10000+ flight hours logged', '/images/tech/mission_comp.jpg', 'LCA Mission Computer Project', 'DRDO/CASDIC/2005/03', 'MC-LCA-MK1', 'ADA-DRDO Joint Funding: Rs 580 Cr'),
+
+('Electronic Warfare Suite', 'Defense Systems', '2016-11-10', NULL, 'In Use', 4, 8, 'Integrated EW suite for threat detection and countermeasures', 125000000.00, 'Top Secret', 'CASDIC Bangalore', 'Wide-band receivers, DRFM technology, Automated threat library, C++', 'Frequency: 2-18 GHz, RWR, Jammer, Chaff/Flare integration', 'Operational on multiple platforms, 95% threat detection rate', '/images/tech/ew_suite.jpg', 'Advanced EW Suite Development', 'DRDO/CASDIC/2011/12', 'EWS-MKII', 'MoD Special Project: Rs 920 Cr'),
+
+('Radar Warning Receiver', 'Sensors', '2010-04-15', '2023-12-31', 'Deprecated', 6, 9, 'Legacy RWR system, superseded by integrated EW suite', 28000000.00, 'Confidential', 'CASDIC Bangalore', 'Crystal Video Receivers, Frequency discriminators, Embedded C', '2-18 GHz coverage, 360-degree coverage, Pulse analysis', 'Served 12+ years, Integrated in 50+ aircraft', '/images/tech/rwr.jpg', 'Indigenous RWR Program', 'DRDO/CASDIC/2003/08', 'RWR-V1', 'MoD Grant: Rs 210 Cr'),
+
+('Flight Control Computer', 'Avionics', '2019-02-28', NULL, 'In Use', 5, 9, 'Digital fly-by-wire flight control system', 92000000.00, 'Top Secret', 'CASDIC Bangalore', 'Triple-redundant architecture, DO-178C Level A, Simulink auto-code, C', 'Quadruplex redundancy, 400Hz update rate, Self-healing algorithms', 'Critical for unstable aircraft designs, Zero accidents attributed to FCC', '/images/tech/fcc.jpg', 'Advanced FBW System', 'DRDO/CASDIC/2013/05', 'FCC-MKIII', 'HAL-DRDO Partnership: Rs 680 Cr'),
+
+('Identification Friend or Foe System', 'Communication', '2017-07-20', NULL, 'In Use', 6, 9, 'Mode-S compatible IFF interrogator/transponder', 35000000.00, 'Confidential', 'CASDIC Bangalore', 'Mode 1/2/3/A/C/S, Monopulse antenna, Software crypto', '1030/1090 MHz operation, ICAO compliant, Secure Mode', 'Interoperable with civil ATC, Deployed in 100+ platforms', '/images/tech/iff.jpg', 'Next-Gen IFF Development', 'DRDO/CASDIC/2012/09', 'IFF-MODE-S', 'MoD & AAI Joint: Rs 270 Cr'),
+
+('Missile Approach Warning System', 'Defense Systems', '2020-01-15', NULL, 'In Use', 4, 7, 'UV-based missile launch detection system', 67000000.00, 'Top Secret', 'CASDIC Bangalore', 'UV sensors, Image processing, AI threat classification, Python/C++', '360-degree coverage, <2s reaction time, Low false alarm rate', 'Successfully detected threats in trials, Integration ongoing', '/images/tech/maws.jpg', 'MAWS Development Program', 'DRDO/CASDIC/2016/11', 'MAWS-V1', 'MoD Special Allocation: Rs 520 Cr'),
+
+('Synthetic Aperture Radar', 'Sensors', '2021-08-10', NULL, 'In Development', 3, 6, 'High-resolution ground imaging radar', 145000000.00, 'Top Secret', 'CASDIC Bangalore', 'X-band AESA, SAR processing algorithms, GPU acceleration, CUDA', 'Resolution: 0.3m, Swath: 10-50km, All-weather operation', 'Prototype tested, Integration phase underway', '/images/tech/sar.jpg', 'Indigenous SAR Program', 'DRDO/CASDIC/2018/04', 'SAR-AESA-X', 'MoD R&D Fund: Rs 1150 Cr'),
+
+('Helmet Mounted Display System', 'Avionics', '2022-03-25', NULL, 'In Development', 4, 6, 'Advanced HMD for pilot situational awareness', 58000000.00, 'Confidential', 'CASDIC Bangalore', 'OLED displays, Head tracking, Augmented reality, C++/OpenGL', 'Binocular vision, Night vision compatible, Weapon cueing', 'Pilot trials completed, Production engineering phase', '/images/tech/hmds.jpg', 'Pilot HMD System', 'DRDO/CASDIC/2019/06', 'HMDS-MKI', 'IAF-DRDO Joint: Rs 450 Cr');
+
+-- ============================================
+-- 2. TECHNOLOGY SPECS
+-- ============================================
+INSERT INTO technology_specs (tech_id, parameter_name, parameter_value, unit, configurable) VALUES
+-- AEWC System (tech_id: 1)
+(1, 'Detection Range', '400', 'km', FALSE),
+(1, 'Tracking Capacity', '300', 'targets', FALSE),
+(1, 'Azimuth Coverage', '360', 'degrees', FALSE),
+(1, 'Elevation Coverage', '90', 'degrees', FALSE),
+(1, 'Operating Frequency', '10-12', 'GHz', FALSE),
+(1, 'Antenna Type', 'AESA', 'N/A', FALSE),
+(1, 'Power Consumption', '45', 'kW', FALSE),
+(1, 'Operating Altitude', '3000-10000', 'meters', TRUE),
+(1, 'MTBF', '500', 'hours', FALSE),
+
+-- SDR System (tech_id: 2)
+(2, 'Frequency Range', '30-512', 'MHz', TRUE),
+(2, 'Channel Bandwidth', '25', 'kHz', TRUE),
+(2, 'Modulation Types', 'AM/FM/PSK/QAM', 'N/A', TRUE),
+(2, 'Output Power', '50', 'Watts', TRUE),
+(2, 'Encryption', 'AES-256', 'N/A', FALSE),
+(2, 'Channels', '16', 'simultaneous', FALSE),
+(2, 'Weight', '8.5', 'kg', FALSE),
+
+-- Mission Computer (tech_id: 3)
+(3, 'Processor Speed', '1.2', 'GHz', FALSE),
+(3, 'RAM', '4', 'GB', FALSE),
+(3, 'Storage', '128', 'GB SSD', FALSE),
+(3, 'Data Bus', 'MIL-STD-1553B', 'N/A', FALSE),
+(3, 'Operating Temp', '-40 to +70', 'Celsius', FALSE),
+(3, 'Redundancy', 'Quadruplex', 'N/A', FALSE),
+(3, 'MTBF', '10000', 'hours', FALSE),
+
+-- EW Suite (tech_id: 4)
+(4, 'Frequency Coverage', '2-18', 'GHz', FALSE),
+(4, 'Threat Library Size', '5000', 'emitters', TRUE),
+(4, 'Reaction Time', '0.5', 'seconds', FALSE),
+(4, 'Jamming Power', '1000', 'Watts', TRUE),
+(4, 'Angular Accuracy', '2', 'degrees RMS', FALSE),
+
+-- Flight Control Computer (tech_id: 6)
+(6, 'Control Loop Rate', '400', 'Hz', FALSE),
+(6, 'Latency', '2.5', 'milliseconds', FALSE),
+(6, 'Redundancy Level', '4', 'channels', FALSE),
+(6, 'Input Channels', '32', 'analog/digital', FALSE),
+(6, 'Output Channels', '24', 'actuator', FALSE),
+
+-- SAR (tech_id: 9)
+(9, 'Resolution', '0.3', 'meters', FALSE),
+(9, 'Swath Width', '10-50', 'km', TRUE),
+(9, 'Operating Band', 'X-band', 'N/A', FALSE),
+(9, 'Polarization', 'Dual-pol', 'N/A', TRUE),
+(9, 'Image Modes', 'Spotlight/Stripmap', 'N/A', TRUE);
+
+-- ============================================
+-- 3. QUALIFICATION HARDWARE
+-- ============================================
+INSERT INTO qualification_hw (tech_id, requirement, achieved_status, date_achieved) VALUES
+(1, 'MIL-STD-810G Environmental Testing', 'Completed', '2014-11-20'),
+(1, 'EMI/EMC Testing per DO-160G', 'Completed', '2015-01-15'),
+(1, 'Altitude Chamber Testing (50000 ft)', 'Completed', '2014-09-30'),
+(1, 'Vibration Testing per MIL-STD-167', 'Completed', '2014-10-10'),
+
+(2, 'Temperature Cycling -40°C to +70°C', 'Completed', '2017-12-15'),
+(2, 'RF Performance Testing', 'Completed', '2018-03-20'),
+(2, 'Electromagnetic Interference Testing', 'Completed', '2018-04-10'),
+
+(3, 'DO-254 Hardware Certification', 'Completed', '2012-06-30'),
+(3, 'Radiation Hardness Testing', 'Completed', '2012-05-15'),
+(3, 'Power Supply Transient Testing', 'Completed', '2012-04-20'),
+
+(4, 'Frequency Response Calibration', 'Completed', '2016-08-25'),
+(4, 'Sensitivity Measurements', 'Completed', '2016-09-10'),
+(4, 'Jamming Effectiveness Tests', 'Completed', '2016-10-05'),
+
+(6, 'Hardware-in-Loop Simulation', 'Completed', '2018-11-30'),
+(6, 'Failure Mode Testing', 'Completed', '2019-01-20'),
+(6, 'Actuator Interface Validation', 'Completed', '2018-12-15'),
+
+(9, 'Antenna Pattern Measurement', 'In Progress', NULL),
+(9, 'Thermal Vacuum Testing', 'In Progress', NULL),
+(9, 'RF Transmitter Qualification', 'Completed', '2023-07-15');
+
+-- ============================================
+-- 4. QUALIFICATION SOFTWARE
+-- ============================================
+INSERT INTO qualification_sw (tech_id, requirement, achieved_status, date_achieved) VALUES
+(1, 'DO-178B Level B Certification', 'Completed', '2015-02-28'),
+(1, 'Software Safety Analysis', 'Completed', '2014-12-10'),
+(1, 'Code Coverage Analysis (MC/DC)', 'Completed', '2015-01-20'),
+
+(2, 'Waveform Validation Testing', 'Completed', '2018-05-15'),
+(2, 'Cryptographic Algorithm Validation', 'Completed', '2018-04-30'),
+(2, 'Interoperability Testing', 'Completed', '2018-06-01'),
+
+(3, 'DO-178B Level A Certification', 'Completed', '2012-08-15'),
+(3, 'Formal Methods Verification', 'Completed', '2012-07-20'),
+(3, 'Real-time Performance Testing', 'Completed', '2012-06-25'),
+
+(4, 'Threat Library Validation', 'Completed', '2016-09-30'),
+(4, 'Algorithm Performance Testing', 'Completed', '2016-10-15'),
+(4, 'Mission Scenario Validation', 'Completed', '2016-11-01'),
+
+(6, 'DO-178C Level A Certification', 'Completed', '2019-02-15'),
+(6, 'Model-Based Testing', 'Completed', '2018-11-20'),
+(6, 'Fault Injection Testing', 'Completed', '2019-01-10'),
+
+(9, 'Image Processing Algorithm Validation', 'In Progress', NULL),
+(9, 'SAR Focusing Algorithm Testing', 'Completed', '2023-09-20'),
+(9, 'Performance Benchmarking', 'In Progress', NULL);
+
+-- ============================================
+-- 5. VERSIONS
+-- ============================================
+INSERT INTO versions (tech_id, version_number, release_date, notes) VALUES
+(1, 'v1.0', '2015-03-15', 'Initial operational version'),
+(1, 'v1.1', '2016-07-20', 'Enhanced tracking algorithms, improved GUI'),
+(1, 'v2.0', '2018-09-10', 'Extended range capability, new threat library'),
+(1, 'v2.1', '2020-03-05', 'Bug fixes, performance optimization'),
+
+(2, 'v1.0', '2018-06-01', 'First production release'),
+(2, 'v1.2', '2019-11-15', 'Added new waveforms, improved encryption'),
+(2, 'v2.0', '2021-04-20', 'Expanded frequency range, GUI overhaul'),
+
+(3, 'v1.0', '2012-09-20', 'Initial release for LCA'),
+(3, 'v1.5', '2015-02-10', 'Performance enhancements, additional interfaces'),
+(3, 'v2.0', '2018-08-30', 'Major architecture upgrade'),
+
+(4, 'v1.0', '2016-11-10', 'Initial operational version'),
+(4, 'v1.1', '2018-01-25', 'Updated threat library'),
+(4, 'v2.0', '2020-06-15', 'AI-based threat recognition'),
+
+(6, 'v1.0', '2019-02-28', 'Production release'),
+(6, 'v1.1', '2020-10-12', 'Enhanced stability, new control laws'),
+
+(9, 'v0.5', '2023-08-10', 'Prototype version for trials'),
+(9, 'v0.8', '2024-05-15', 'Pre-production beta');
+
+-- ============================================
+-- 6. COMPANIES
+-- ============================================
+INSERT INTO companies (name, country, type, role, contact_person, contact_email, contact_phone, website, address, notes) VALUES
+('Bharat Electronics Limited', 'India', 'Government', 'Manufacturing Partner', 'Dr. Rajesh Kumar', 'rajesh.k@bel.co.in', '+91-80-28387777', 'https://bel-india.in', 'Outer Ring Road, Jalahalli, Bangalore - 560013', 'Primary manufacturing partner for defense electronics'),
+
+('Hindustan Aeronautics Limited', 'India', 'Government', 'Integration Partner', 'Wing Cdr. Anand Sharma', 'anand.sharma@hal-india.co.in', '+91-80-25284141', 'https://hal-india.co.in', 'HAL Airport, Bangalore - 560017', 'Aircraft integration and systems integration'),
+
+('Tata Advanced Systems', 'India', 'Private', 'Component Supplier', 'Mr. Vikram Mehta', 'vikram.mehta@tata.com', '+91-22-66658282', 'https://tataadvancedsystems.com', 'Mumbai, Maharashtra', 'Precision components and sub-systems'),
+
+('Larsen & Toubro Defence', 'India', 'Private', 'Technology Partner', 'Dr. S. Ramakrishnan', 's.ram@lntdefence.com', '+91-44-28267890', 'https://lntdefence.com', 'Chennai, Tamil Nadu', 'Advanced systems and platform integration'),
+
+('Astra Microwave Products', 'India', 'Private', 'RF Components Supplier', 'Mr. B.S. Reddy', 'bs.reddy@astramwp.com', '+91-40-23420482', 'https://astramwp.com', 'Hyderabad, Telangana', 'RF/Microwave components for radar systems'),
+
+('Zen Technologies', 'India', 'Private', 'Simulation Solutions', 'Ms. Priya Iyer', 'priya.i@zentech.in', '+91-40-23115519', 'https://zentechnologies.com', 'Hyderabad, Telangana', 'Training simulators and virtual systems'),
+
+('Alpha Design Technologies', 'India', 'Private', 'Avionics Partner', 'Mr. Suresh Patel', 'suresh.p@alphadesign.in', '+91-80-25622345', 'https://alphadesign.in', 'Bangalore, Karnataka', 'Avionics systems and integration'),
+
+('Raytheon Technologies', 'USA', 'Private', 'Technology Consultant', 'Mr. John Anderson', 'j.anderson@rtx.com', '+1-781-522-3000', 'https://rtx.com', 'Waltham, MA, USA', 'Technical consultancy for advanced systems'),
+
+('Thales Group', 'France', 'Private', 'Technology Partner', 'Mr. Pierre Dubois', 'p.dubois@thalesgroup.com', '+33-1-57-77-80-00', 'https://thalesgroup.com', 'Paris, France', 'Sensor fusion and avionics technology'),
+
+('BAE Systems India', 'UK', 'Private', 'Technology Consultant', 'Dr. Michael Roberts', 'm.roberts@baesystems.com', '+44-1252-373232', 'https://baesystems.com', 'Farnborough, UK', 'EW and mission systems consulting'),
+
+('Saab India Technologies', 'Sweden', 'Private', 'Technology Partner', 'Mr. Lars Eriksson', 'l.eriksson@saab.com', '+46-8-463-0000', 'https://saab.com', 'Stockholm, Sweden', 'Radar and sensor technology'),
+
+('IIT Bangalore', 'India', 'Academic', 'Research Partner', 'Prof. K. Srinivasan', 'ksrinivasan@iisc.ac.in', '+91-80-22932300', 'https://iisc.ac.in', 'CV Raman Avenue, Bangalore - 560012', 'Advanced research in signal processing and AI');
+
+-- ============================================
+-- 7. PROJECTS
+-- ============================================
+INSERT INTO projects (tech_id, budget, name, description, start_date, end_date) VALUES
+(1, 2100000000.00, 'NETRA AEW&C Development', 'Development of indigenous Airborne Early Warning and Control System', '2009-04-01', '2015-12-31'),
+(1, 350000000.00, 'NETRA Block-II Upgrade', 'Enhanced capabilities for NETRA platform', '2019-01-15', NULL),
+
+(2, 350000000.00, 'Tactical SDR Development', 'Multi-band software defined radio for military aviation', '2014-03-01', '2018-08-31'),
+(2, 180000000.00, 'SDR Mk-II Enhancement', 'Next generation SDR with AI-based waveform adaptation', '2020-06-01', NULL),
+
+(3, 580000000.00, 'LCA Mission Computer', 'Development of mission computer for LCA Tejas', '2005-01-10', '2012-12-31'),
+(3, 420000000.00, 'Advanced Mission Computer for AMCA', 'Next-gen mission computer for Advanced Medium Combat Aircraft', '2021-04-01', NULL),
+
+(4, 920000000.00, 'Integrated EW Suite Development', 'Comprehensive electronic warfare suite for fighter aircraft', '2011-06-15', '2016-12-31'),
+(4, 550000000.00, 'EW Suite Upgrade Program', 'Technology refresh and capability enhancement', '2022-01-10', NULL),
+
+(6, 680000000.00, 'Digital FBW Development', 'Fly-by-wire flight control system', '2013-03-01', '2019-06-30'),
+
+(7, 270000000.00, 'Mode-S IFF System', 'Development of ICAO-compliant IFF system', '2012-07-01', '2017-09-30'),
+
+(8, 520000000.00, 'MAWS Development', 'Missile approach warning system for aircraft self-protection', '2016-09-01', NULL),
+
+(9, 1150000000.00, 'Indigenous SAR Program', 'X-band synthetic aperture radar for ISR missions', '2018-02-01', NULL),
+
+(10, 450000000.00, 'Pilot HMD System', 'Helmet mounted display for enhanced situational awareness', '2019-04-15', NULL);
+
+-- ============================================
+-- 8. PROJECT-COMPANY MAPPING
+-- ============================================
+INSERT INTO project_companies (project_id, company_id, role_in_project, contribution, partnership_start_date, partnership_end_date) VALUES
+-- NETRA AEW&C Development (project_id: 1)
+(1, 1, 'Lead Manufacturing', 'System integration and production', '2009-04-01', '2015-12-31'),
+(1, 2, 'Platform Integration', 'Aircraft modification and integration', '2009-06-01', '2015-12-31'),
+(1, 5, 'Supplier', 'RF components and antenna systems', '2010-01-15', '2015-10-30'),
+
+-- Tactical SDR Development (project_id: 3)
+(3, 1, 'Manufacturing Partner', 'Production and testing', '2014-03-01', '2018-08-31'),
+(3, 7, 'Technology Partner', 'Software development support', '2014-06-01', '2018-08-31'),
+
+-- LCA Mission Computer (project_id: 5)
+(5, 2, 'Lead Partner', 'Integration with LCA platform', '2005-01-10', '2012-12-31'),
+(5, 1, 'Manufacturing', 'Production of mission computers', '2005-03-15', '2012-12-31'),
+(5, 3, 'Supplier', 'Chassis and mechanical components', '2005-02-01', '2012-11-30'),
+
+-- Integrated EW Suite (project_id: 7)
+(7, 1, 'Lead Partner', 'System development and integration', '2011-06-15', '2016-12-31'),
+(7, 5, 'Supplier', 'Microwave components', '2011-09-01', '2016-12-31'),
+(7, 10, 'Consultant', 'EW techniques consultation', '2011-08-01', '2013-12-31'),
+
+-- Digital FBW Development (project_id: 9)
+(9, 2, 'Integration Partner', 'Aircraft integration and flight testing', '2013-03-01', '2019-06-30'),
+(9, 1, 'Manufacturing', 'FCC production', '2013-05-01', '2019-06-30'),
+(9, 12, 'Research Partner', 'Control law development and validation', '2013-03-01', '2017-12-31'),
+
+-- Mode-S IFF System (project_id: 10)
+(10, 1, 'Lead Developer', 'System design and manufacturing', '2012-07-01', '2017-09-30'),
+(10, 9, 'Technology Partner', 'Mode-S technology transfer', '2012-09-01', '2014-12-31'),
+
+-- Indigenous SAR Program (project_id: 12)
+(12, 1, 'Lead Partner', 'Radar development', '2018-02-01', NULL),
+(12, 5, 'Supplier', 'AESA antenna elements', '2018-06-01', NULL),
+(12, 12, 'Research Partner', 'SAR algorithm development', '2018-02-01', NULL),
+(12, 11, 'Technology Consultant', 'SAR processing techniques', '2019-01-15', NULL);
+
+-- ============================================
+-- 9. PATENTS
+-- ============================================
+INSERT INTO patents (tech_id, title, patent_number, date_filed, date_granted) VALUES
+(1, 'Active Electronically Scanned Array Radar with Adaptive Beamforming', 'IN 283945', '2013-05-20', '2015-09-15'),
+(1, 'Multi-Target Tracking Algorithm for Airborne Surveillance', 'IN 298763', '2014-08-10', '2016-12-22'),
+
+(2, 'Software Defined Radio Architecture for Tactical Communications', 'IN 276543', '2015-11-05', '2018-03-18'),
+(2, 'Low Probability of Intercept Waveform for Military Communication', 'IN 302156', '2017-06-15', '2019-10-30'),
+
+(3, 'Fault-Tolerant Mission Computer Architecture', 'IN 265432', '2008-03-25', '2011-07-12'),
+(3, 'Real-Time Operating System for Safety-Critical Avionics', 'IN 271289', '2010-09-18', '2013-02-05'),
+
+(4, 'Cognitive Electronic Warfare System with Adaptive Jamming', 'IN 289654', '2014-07-22', '2017-01-28'),
+(4, 'Automated Threat Identification Using Machine Learning', 'IN 312445', '2019-04-10', '2021-11-15'),
+
+(6, 'Quadruplex Redundant Flight Control Computer', 'IN 294567', '2016-02-14', '2018-08-20'),
+(6, 'Self-Healing Digital Fly-By-Wire Control System', 'IN 306789', '2018-11-08', '2021-05-25'),
+
+(7, 'Secure Mode-S IFF System with Encrypted Challenge-Response', 'IN 281234', '2014-05-30', '2016-10-12'),
+
+(8, 'UV-Based Missile Approach Warning with AI Classification', 'IN 318765', '2020-09-25', '2023-03-18'),
+
+(9, 'SAR Image Formation with Motion Compensation', 'IN 325432', '2022-01-20', NULL),
+(9, 'AESA Radar with Simultaneous Multi-Mode Operation', 'IN 328901', '2022-08-15', NULL);
+
+-- ============================================
+-- 10. PUBLICATIONS
+-- ============================================
+INSERT INTO publications (tech_id, title, authors, journal, year, link) VALUES
+(1, 'Design and Development of Active Phased Array Radar for AEW&C Applications', 'Sharma R, Patel K, Reddy S', 'IEEE Transactions on Aerospace and Electronic Systems', 2016, 'https://ieeexplore.ieee.org/document/7489623'),
+(1, 'Multi-Target Tracking in Dense Clutter Environment', 'Kumar A, Singh M', 'International Journal of Radar Systems', 2018, 'https://journals.radar.org/ijrs/2018-456'),
+
+(2, 'Software Defined Radio Architecture for Military Aviation', 'Verma P, Gupta S, Das R', 'Journal of Defense Communications', 2019, 'https://jdc.defense.org/vol45/p234'),
+(2, 'Cognitive Radio Techniques for Tactical Networks', 'Iyer V, Krishnan B', 'IEEE Communications Magazine', 2020, 'https://ieeexplore.ieee.org/document/9012345'),
+
+(3, 'Mission Computer Design for Modern Fighter Aircraft', 'Menon K, Bhat S', 'Avionics Systems Journal', 2013, 'https://asj.avionics.org/2013/mc-design'),
+(3, 'DO-178B Certification Experience for Mission Critical Avionics', 'Rao D, Narayanan V', 'Software Engineering for Aerospace', 2014, 'https://sea.aerospace.org/vol12/cert-experience'),
+
+(4, 'Integrated Electronic Warfare Suite for Multi-Role Aircraft', 'Desai A, Joshi P', 'Journal of Electronic Defense', 2017, 'https://jed.defense.org/2017-ew-suite'),
+(4, 'Machine Learning Approaches for Radar Emitter Identification', 'Nair R, Thomas K', 'IEEE Transactions on Aerospace Systems', 2020, 'https://ieeexplore.ieee.org/document/9134567'),
+
+(6, 'Digital Fly-By-Wire Control Laws for Unstable Aircraft', 'Pillai S, Rajan M', 'Control Systems Magazine', 2019, 'https://csm.ieee.org/2019/fbw-control'),
+(6, 'Fault-Tolerant Architecture for Flight Control Systems', 'Mathur A, Chauhan R', 'Aerospace Science and Technology', 2020, 'https://ast.elsevier.com/2020/fault-tolerant'),
+
+(7, 'Mode-S IFF System Development and Certification', 'Sinha K, Banerjee T', 'Navigation and Communication Systems', 2018, 'https://ncs.journal.org/2018/iff-mode-s'),
+
+(8, 'UV-Based Missile Warning Systems: Design and Performance', 'Agarwal P, Mishra N', 'Optical Engineering Journal', 2021, 'https://oe.spiedigital.org/2021/maws-uv'),
+
+(9, 'Synthetic Aperture Radar Image Formation Algorithms', 'Chandra S, Reddy M', 'IEEE Geoscience and Remote Sensing', 2023, 'https://ieeexplore.ieee.org/document/10234589'),
+(9, 'AESA Technology for High-Resolution SAR Applications', 'Kumar V, Prasad L', 'International Journal of Antennas', 2024, 'https://ija.antenna.org/2024/aesa-sar'),
+
+(10, 'Helmet Mounted Display Systems for Fighter Pilots', 'Saxena R, Kapoor A', 'Display Technology Review', 2023, 'https://dtr.displays.org/2023/hmd-fighter');
+
+-- ============================================
+-- 11. EMPLOYEES
+-- ============================================
+INSERT INTO employees (name, designation, department, email, phone, status) VALUES
+('Dr. Rajiv Sharma', 'Director', 'Administration', 'rajiv.sharma@casdic.drdo.in', '080-25242001', 'Active'),
+('Dr. Priya Menon', 'Chief Scientist', 'Radar Systems', 'priya.menon@casdic.drdo.in', '080-25242105', 'Active'),
+('Shri Anil Kumar', 'Outstanding Scientist', 'Avionics', 'anil.kumar@casdic.drdo.in', '080-25242112', 'Active'),
+('Dr. Sanjay Patel', 'Distinguished Scientist', 'Electronic Warfare', 'sanjay.patel@casdic.drdo.in', '080-25242120', 'Active'),
+('Mrs. Kavita Reddy', 'Senior Scientist', 'Communication Systems', 'kavita.reddy@casdic.drdo.in', '080-25242145', 'Active'),
+('Shri Vikram Singh', 'Scientist-G', 'Flight Control Systems', 'vikram.singh@casdic.drdo.in', '080-25242158', 'Active'),
+('Dr. Meera Nair', 'Scientist-F', 'Signal Processing', 'meera.nair@casdic.drdo.in', '080-25242167', 'Active'),
+('Shri Ranjan Das', 'Scientist-E', 'Software Engineering', 'ranjan.das@casdic.drdo.in', '080-25242178', 'Active'),
+('Ms. Anjali Verma', 'Scientist-D', 'Embedded Systems', 'anjali.verma@casdic.drdo.in', '080-25242189', 'Active'),
+('Shri Karthik Iyer', 'Scientist-C', 'RF Engineering', 'karthik.iyer@casdic.drdo.in', '080-25242195', 'Active'),
+('Dr. Suresh Krishnan', 'Scientist-G', 'Sensor Fusion', 'suresh.k@casdic.drdo.in', '080-25242202', 'Active'),
+('Mrs. Lakshmi Bhat', 'Scientist-E', 'Systems Integration', 'lakshmi.bhat@casdic.drdo.in', '080-25242215', 'Active'),
+('Shri Arjun Malhotra', 'Scientist-D', 'Testing & Evaluation', 'arjun.m@casdic.drdo.in', '080-25242228', 'Active'),
+('Dr. Divya Chatterjee', 'Scientist-F', 'Antenna Design', 'divya.c@casdic.drdo.in', '080-25242234', 'Active'),
+('Shri Rahul Deshmukh', 'Scientist-C', 'Digital Signal Processing', 'rahul.d@casdic.drdo.in', '080-25242245', 'Active'),
+('Mrs. Pooja Gupta', 'Scientist-E', 'Mission Planning', 'pooja.gupta@casdic.drdo.in', '080-25242256', 'Active'),
+('Shri Amit Joshi', 'Scientist-D', 'Hardware Development', 'amit.joshi@casdic.drdo.in', '080-25242267', 'Active'),
+('Dr. Neha Kapoor', 'Scientist-F', 'Algorithm Development', 'neha.kapoor@casdic.drdo.in', '080-25242278', 'Active'),
+('Shri Deepak Rao', 'Scientist-G', 'Project Management', 'deepak.rao@casdic.drdo.in', '080-25242289', 'Active'),
+('Ms. Sneha Pillai', 'Scientist-C', 'Quality Assurance', 'sneha.pillai@casdic.drdo.in', '080-25242295', 'Active');
+
+-- ============================================
+-- 12. EMPLOYEE-PROJECT MAPPING
+-- ============================================
+INSERT INTO employee_projects (employee_id, project_id, role) VALUES
+-- NETRA AEW&C Development
+(2, 1, 'Project Lead'),
+(11, 1, 'Sensor Fusion Lead'),
+(14, 1, 'Antenna Design Lead'),
+(19, 1, 'Project Manager'),
+
+-- NETRA Block-II Upgrade
+(2, 2, 'Technical Advisor'),
+(11, 2, 'Lead Scientist'),
+
+-- Tactical SDR Development
+(5, 3, 'Project Lead'),
+(8, 3, 'Software Lead'),
+(10, 3, 'RF Lead'),
+
+-- SDR Mk-II Enhancement
+(5, 4, 'Project Director'),
+(18, 4, 'Algorithm Lead'),
+
+-- LCA Mission Computer
+(3, 5, 'Project Lead'),
+(8, 5, 'Software Architect'),
+(12, 5, 'Integration Lead'),
+
+-- Advanced Mission Computer for AMCA
+(3, 6, 'Technical Director'),
+(8, 6, 'Software Lead'),
+(9, 6, 'Embedded Systems Lead'),
+
+-- Integrated EW Suite Development
+(4, 7, 'Project Lead'),
+(7, 7, 'Signal Processing Lead'),
+(10, 7, 'RF Systems Lead'),
+
+-- EW Suite Upgrade Program
+(4, 8, 'Project Director'),
+(18, 8, 'AI/ML Lead'),
+
+-- Digital FBW Development
+(6, 9, 'Project Lead'),
+(8, 9, 'Software Development Lead'),
+(19, 9, 'Project Manager'),
+
+-- Mode-S IFF System
+(5, 10, 'Co-Lead'),
+(10, 10, 'RF Design Lead'),
+
+-- MAWS Development
+(4, 11, 'Technical Advisor'),
+(7, 11, 'Signal Processing Lead'),
+(18, 11, 'ML Algorithm Lead'),
+
+-- Indigenous SAR Program
+(2, 12, 'Project Director'),
+(14, 12, 'Antenna Lead'),
+(15, 12, 'DSP Lead'),
+(18, 12, 'Image Processing Lead'),
+
+-- Pilot HMD System
+(3, 13, 'Project Lead'),
+(9, 13, 'Hardware Lead'),
+(16, 13, 'Mission Planning Integration');
+
+-- ============================================
+-- 13. EMPLOYEE-PATENT MAPPING
+-- ============================================
+INSERT INTO employee_patents (employee_id, patent_id, role) VALUES
+-- AESA Radar patents
+(2, 1, 'Principal Inventor'),
+(14, 1, 'Co-Inventor'),
+(2, 2, 'Co-Inventor'),
+(11, 2, 'Principal Inventor'),
+
+-- SDR patents
+(5, 3, 'Principal Inventor'),
+(8, 3, 'Co-Inventor'),
+(5, 4, 'Co-Inventor'),
+(10, 4, 'Principal Inventor'),
+
+-- Mission Computer patents
+(3, 5, 'Principal Inventor'),
+(8, 5, 'Co-Inventor'),
+(3, 6, 'Co-Inventor'),
+(8, 6, 'Principal Inventor'),
+
+-- EW Suite patents
+(4, 7, 'Principal Inventor'),
+(7, 7, 'Co-Inventor'),
+(4, 8, 'Co-Inventor'),
+(18, 8, 'Principal Inventor'),
+
+-- Flight Control patents
+(6, 9, 'Principal Inventor'),
+(8, 9, 'Co-Inventor'),
+(6, 10, 'Principal Inventor'),
+
+-- IFF patent
+(5, 11, 'Principal Inventor'),
+(10, 11, 'Co-Inventor'),
+
+-- MAWS patent
+(4, 12, 'Co-Inventor'),
+(18, 12, 'Principal Inventor'),
+
+-- SAR patents
+(2, 13, 'Co-Inventor'),
+(15, 13, 'Principal Inventor'),
+(2, 14, 'Principal Inventor'),
+(14, 14, 'Co-Inventor');
+
+-- ============================================
+-- 14. EMPLOYEE-PUBLICATION MAPPING
+-- ============================================
+INSERT INTO employee_publications (employee_id, pub_id, role) VALUES
+-- AEWC publications
+(2, 1, 'First Author'),
+(11, 2, 'First Author'),
+
+-- SDR publications
+(5, 3, 'First Author'),
+(8, 3, 'Co-Author'),
+(5, 4, 'Co-Author'),
+
+-- Mission Computer publications
+(3, 5, 'First Author'),
+(8, 6, 'First Author'),
+(3, 6, 'Co-Author'),
+
+-- EW publications
+(4, 7, 'First Author'),
+(7, 7, 'Co-Author'),
+(18, 8, 'First Author'),
+(4, 8, 'Co-Author'),
+
+-- Flight Control publications
+(6, 9, 'First Author'),
+(6, 10, 'Co-Author'),
+
+-- IFF publication
+(5, 11, 'First Author'),
+(10, 11, 'Co-Author'),
+
+-- MAWS publication
+(18, 12, 'First Author'),
+(4, 12, 'Co-Author'),
+
+-- SAR publications
+(2, 13, 'Co-Author'),
+(15, 13, 'First Author'),
+(2, 14, 'First Author'),
+(14, 14, 'Co-Author'),
+
+-- HMD publication
+(3, 15, 'First Author'),
+(16, 15, 'Co-Author');
+
+-- ============================================
+-- 15. USERS (Sample user accounts)
+-- ============================================
+INSERT INTO users (name, email, password, role) VALUES
+('Admin User', 'admin@casdic.drdo.in', '$2a$10$YourHashedPasswordHere1', 'employee'),
+('Dr. Rajiv Sharma', 'rajiv.sharma@casdic.drdo.in', '$2a$10$YourHashedPasswordHere2', 'employee'),
+('Dr. Priya Menon', 'priya.menon@casdic.drdo.in', '$2a$10$YourHashedPasswordHere3', 'employee'),
+('Guest User', 'guest@example.com', '$2a$10$YourHashedPasswordHere4', 'user'),
+('Researcher One', 'researcher1@casdic.drdo.in', '$2a$10$YourHashedPasswordHere5', 'user');
+
+-- ============================================
+-- 16. WATCHLIST (Sample watchlist entries)
+-- ============================================
+INSERT INTO watchlist (user_id, item_type, item_id) VALUES
+(4, 'tech', 1),  -- Guest watching AEWC
+(4, 'tech', 9),  -- Guest watching SAR
+(4, 'project', 12), -- Guest watching SAR Project
+(5, 'tech', 2),  -- Researcher watching SDR
+(5, 'patent', 8), -- Researcher watching ML patent
+(5, 'pub', 13);  -- Researcher watching SAR publication
+
+-- ============================================
+-- 17. NOTIFICATIONS (Sample notifications)
+-- ============================================
+INSERT INTO notifications (user_id, tech_id, message, is_read) VALUES
+(4, 1, 'NETRA AEW&C System upgraded to version 2.1 with enhanced tracking capabilities', FALSE),
+(4, 9, 'Indigenous SAR Program: New prototype version 0.8 released for testing', FALSE),
+(5, 2, 'Tactical SDR Development: SDR Mk-II Enhancement project initiated', TRUE),
+(5, 2, 'New publication added: Cognitive Radio Techniques for Tactical Networks', FALSE);
+
+-- ============================================
+-- SUCCESS MESSAGE
+-- ============================================
+SELECT 'Database population completed successfully!' AS Status;
+SELECT COUNT(*) AS Total_Technologies FROM technologies;
+SELECT COUNT(*) AS Total_Projects FROM projects;
+SELECT COUNT(*) AS Total_Companies FROM companies;
+SELECT COUNT(*) AS Total_Patents FROM patents;
+SELECT COUNT(*) AS Total_Publications FROM publications;
+SELECT COUNT(*) AS Total_Employees FROM employees;
