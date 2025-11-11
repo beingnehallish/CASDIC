@@ -502,12 +502,14 @@ INSERT INTO employee_publications (employee_id, pub_id, role) VALUES
 -- ============================================
 -- 15. USERS (Sample user accounts)
 -- ============================================
+
 INSERT INTO users (name, email, password, role) VALUES
-('Admin User', 'admin@casdic.drdo.in', '$2a$10$YourHashedPasswordHere1', 'employee'),
-('Dr. Rajiv Sharma', 'rajiv.sharma@casdic.drdo.in', '$2a$10$YourHashedPasswordHere2', 'employee'),
-('Dr. Priya Menon', 'priya.menon@casdic.drdo.in', '$2a$10$YourHashedPasswordHere3', 'employee'),
-('Guest User', 'guest@example.com', '$2a$10$YourHashedPasswordHere4', 'user'),
-('Researcher One', 'researcher1@casdic.drdo.in', '$2a$10$YourHashedPasswordHere5', 'user');
+('Admin User', 'admin@casdic.drdo.in', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8dPp7uEf7B1UL.9vVbWz0Pz8o4F5e6', 'employee'),
+('Dr. Rajiv Sharma', 'rajiv.sharma@casdic.drdo.in', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8dPp7uEf7B1UL.9vVbWz0Pz8o4F5e6', 'employee'),
+('Dr. Priya Menon', 'priya.menon@casdic.drdo.in', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8dPp7uEf7B1UL.9vVbWz0Pz8o4F5e6', 'employee'),
+('Guest User', 'guest@example.com', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8dPp7uEf7B1UL.9vVbWz0Pz8o4F5e6', 'user'),
+('Researcher One', 'researcher1@casdic.drdo.in', '$2a$10$CwTycUXWue0Thq9StjUM0uJ8dPp7uEf7B1UL.9vVbWz0Pz8o4F5e6', 'user');
+
 
 -- ============================================
 -- 16. WATCHLIST (Sample watchlist entries)
