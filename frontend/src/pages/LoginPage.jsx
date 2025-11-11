@@ -20,6 +20,7 @@ function LoginPage() {
     });
 
     localStorage.setItem("token", res.data.token);
+    localStorage.setItem("userEmail", email);
 
     const userRole = res.data.role; // ✅ backend role
 

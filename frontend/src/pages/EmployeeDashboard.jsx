@@ -45,7 +45,7 @@ export default function EmployeeDashboard() {
         }
       } catch (err) {
         console.error("Failed to fetch profile", err);
-        setProfileMsg("❌ Could not load profile data.");
+        // setProfileMsg("❌ Could not load profile data.");
       }
     };
     fetchCurrentEmployee();

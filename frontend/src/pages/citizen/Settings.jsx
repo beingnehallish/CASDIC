@@ -8,6 +8,7 @@ export default function Settings({
   setCurrentPassword,
   setNewPassword,
   msg,
+  userEmail,
 }) {
   
   // Placeholder function for the new "Delete Account" button
@@ -27,11 +28,18 @@ export default function Settings({
         <h3>Profile Information</h3>
         <form className="settings-form">
           <label htmlFor="name">Name</label>
-          <input type="text" id="name" defaultValue="Pragna" /> {/* Placeholder name */}
-          
+          {/* 2. This is still a placeholder. See note below. */}
+          <input type="text" id="name" defaultValue="User" disabled />   
+
           <label htmlFor="email">Email</label>
-          <input type="email" id="email" defaultValue="pragna@example.com" disabled /> {/* Read-only email */}
-          
+          {/* 3. Use the dynamic userEmail prop */}
+          <input 
+            type="email" 
+            id="email" 
+            value={userEmail} // <-- Use value instead of defaultValue
+            disabled 
+          />
+                    
           <button type="submit" disabled>Save Changes</button>
         </form>
       </div>
