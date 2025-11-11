@@ -224,3 +224,167 @@
     padding-left: calc(230px + 1rem);
   }
 }
+
+
+/* --- New Employee Settings Page Styles --- */
+
+.settings-page {
+  padding: 2rem;
+  max-width: 1000px; /* Give the page a max width */
+  margin: 0 auto; /* Center the content */
+}
+
+.settings-page h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+/* 1. Change the grid to a single column */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column */
+  gap: 2rem;
+}
+
+/* 2. Style the cards */
+.settings-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 2rem;
+}
+
+.settings-card h3 {
+  font-size: 1.25rem;
+  color: #1c1e21;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+/* 3. Style the forms */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #343a40;
+  margin-bottom: -0.75rem; /* Pulls input closer */
+}
+
+.settings-form input[type="text"],
+.settings-form input[type="email"],
+.settings-form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d9e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* 4. Style the profile picture area */
+.profile-pic-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profile-pic-settings img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%; /* Make it a circle */
+  object-fit: cover;
+  border: 3px solid #e9ecef;
+}
+
+.profile-pic-settings .pic-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 600;
+}
+
+/* Hide the default file input */
+.profile-pic-settings input[type="file"] {
+  display: none;
+}
+
+/* Style the label to look like a button */
+.file-upload-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #d1d9e0;
+  color: #343a40;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.file-upload-btn:hover {
+  background-color: #e9ecef;
+}
+
+/* 5. Style the buttons */
+.save-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 200px; /* Give a fixed width */
+  align-self: flex-start; /* Stop it from stretching */
+}
+.save-btn:hover {
+  background-color: #0056b3;
+}
+
+/* 6. Style the danger zone */
+.danger-zone {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f8d7da;
+}
+.danger-zone h3 {
+  color: #dc3545;
+}
+.logout-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+/* 7. Style the form messages */
+.form-message {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
