@@ -1,4 +1,5 @@
--- extract zip file here  ->  C:\xampp\mysql\data\
+-- extract zip file here  ->  C:\xampp\mysql\data\ 
+-- C:\ProgramData\MySQL\MySQL Server 8.0\Data\
 
 -- CASDIC (Centre for Airborne Systems) Sample Database Population
 -- Note: This is realistic sample data for development purposes
