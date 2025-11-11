@@ -6,3 +6,50 @@ body {
   background-color: #ffffff; /* keep neutral */
   display: block; /* ✅ remove flex centering */
 }
+
+/*
+  File: frontend/src/index.css
+  Add this code to fix the GSAP warnings.
+  These styles are for the background glow divs in main.jsx
+*/
+
+.clp-bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 48V1H48' stroke='rgba(55, 65, 81, 1)' stroke-width='2'/%3E%3C/svg%3E");
+  background-position: 0 0;
+  z-index: -1;
+}
+
+.clp-bg-glow {
+  position: fixed;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(128px);
+  opacity: 0.15;
+}
+
+.clp-glow-a {
+  width: 600px;
+  height: 600px;
+  background: #3b82f6; /* Blue */
+  left: -200px;
+  top: -200px;
+}
+
+.clp-glow-b {
+  width: 700px;
+  height: 700px;
+  background: #14b8a6; /* Teal */
+  right: -200px;
+  bottom: -200px;
+}
+
+/* Make sure the glow elements are visible in dark mode */
+.dark .clp-bg-grid {
+  background-image: url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 48V1H48' stroke='rgba(55, 65, 81, 0.5)' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+.dark .clp-bg-glow {
+  opacity: 0.25;
+}
