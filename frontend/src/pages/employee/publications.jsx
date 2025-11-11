@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "../../styles/employee.projects.css"; // Re-uses the same CSS!
+import "../../styles/employee.publications.css";
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,140 +12,11 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend, // <-- This import is correct
+  Legend,
 } from "recharts";
 
-// This is the "Link Employee to Publication" modal, now as a separate component
-const LinkEmployeeModal = ({ show, onClose, publications, employees, token }) => {
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
-  const [selectedPublication, setSelectedPublication] = useState(null);
-  const [role, setRole] = useState("");
-  const [employeeSearch, setEmployeeSearch] = useState("");
-  const [publicationSearch, setPublicationSearch] = useState("");
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.name.toLowerCase().includes(employeeSearch.toLowerCase())
-  );
-  
-  const filteredPublications = publications.filter(p => 
-    p.title.toLowerCase().includes(publicationSearch.toLowerCase())
-  );
-
-  const handleSave = async () => {
-    try {
-      if (selectedEmployees.length === 0 || !selectedPublication) {
-        alert("Select at least one employee and one publication");
-        return;
-      }
-      await Promise.all(
-        selectedEmployees.map(empId =>
-          axios.post(
-            "http://localhost:5000/api/employee_publications",
-            { employee_id: empId, pub_id: selectedPublication, role: role },
-            { headers: { Authorization: `Bearer ${token}` } }
-          )
-        )
-      );
-      alert("Employees linked to publication successfully!");
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to link employees to publication");
-    }
-  };
-
-  if (!show) return null;
-
-  return (
-    <div className="modal-overlay link-modal-overlay" onClick={onClose}>
-      <div className="modal-content large link-modal-layout" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>✖</button>
-        <h2>Link Employees to Publication</h2>
-
-        {/* Role */}
-        <div className="link-modal-section"> 
-          <b>Role (e.g., Author):</b>
-          <input
-            type="text"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            placeholder="Lead Author / Co-Author"
-          />
-        </div>
-
-        {/* Publication Selection */}
-        <div className="link-modal-section">
-          <b>Select Publication:</b>
-          <input
-            type="text"
-            placeholder="Search publications..."
-            value={publicationSearch}
-            onChange={(e) => setPublicationSearch(e.target.value)}
-          />
-          <div className="searchable-table" style={{ maxHeight: "150px" }}>
-            <table>
-              <thead><tr><th>Select</th><th>ID</th><th>Title</th></tr></thead>
-              <tbody>
-                {filteredPublications.map(p => (
-                  <tr key={p.pub_id}>
-                    <td>
-                      <input
-                        type="radio"
-                        name="selectedPublication"
-                        checked={selectedPublication === p.pub_id}
-                        onChange={() => setSelectedPublication(p.pub_id)}
-                      />
-                    </td>
-                    <td>{p.pub_id}</td><td>{p.title}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Employees Selection */}
-        <div className="link-modal-section">
-          <b>Select Employees:</b>
-          <input
-            type="text"
-            placeholder="Search employees..."
-            value={employeeSearch}
-            onChange={(e) => setEmployeeSearch(e.target.value)}
-          />
-          <div className="searchable-table" style={{ maxHeight: "200px" }}>
-            <table>
-              <thead><tr><th>Select</th><th>ID</th><th>Name</th><th>Dept</th></tr></thead>
-              <tbody>
-                {filteredEmployees.map(emp => (
-                  <tr key={emp.employee_id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedEmployees.includes(emp.employee_id)}
-                        onChange={(e) => {
-                          const id = emp.employee_id;
-                          setSelectedEmployees(prev =>
-                            e.target.checked ? [...prev, id] : prev.filter(i => i !== id)
-                          );
-                        }}
-                      />
-                    </td>
-                    <td>{emp.employee_id}</td><td>{emp.name}</td><td>{emp.department}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <button className="save-btn" onClick={handleSave}>💾 Link</button>
-      </div>
-    </div>
-  );
-};
-
-// Main Page Component
+/* ====================== Main Page ====================== */
 export default function PublicationsPage() {
   const token = localStorage.getItem("token");
 
@@ -165,87 +36,87 @@ export default function PublicationsPage() {
   // Hub Modal State
   const [hubModal, setHubModal] = useState({
     show: false,
-    mode: 'add',
+    mode: "add",
     publicationData: {},
-    relatedData: { authors: [], tech: null }
+    relatedData: { authors: [], tech: null },
   });
-  const [modalActiveTab, setModalActiveTab] = useState('overview');
-  
+  const [modalActiveTab, setModalActiveTab] = useState("overview");
+
   // Authors Tab State
   const [authorSearch, setAuthorSearch] = useState("");
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [authorRole, setAuthorRole] = useState("");
-  
-  // Link Employee Modal State
+  const [linkedAuthors, setLinkedAuthors] = useState([]);
+  // Link Modal
   const [showLinkModal, setShowLinkModal] = useState(false);
 
   // --- Data Fetching ---
-
   const fetchPublications = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/publications", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPublications(res.data);
-      processGraphData(res.data); // Process graph data after fetching
+      setPublications(res.data || []);
+      processGraphData(res.data || []);
     } catch (err) {
       console.error("Error fetching publications:", err);
     }
   };
 
   useEffect(() => {
-    // Fetch all required data on load
-    const fetchPageData = async () => {
+    const fetchCore = async () => {
       try {
         const [empRes, techRes] = await Promise.all([
           axios.get("http://localhost:5000/api/employees", { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get("http://localhost:5000/api/technologies", { headers: { Authorization: `Bearer ${token}` } })
+          axios.get("http://localhost:5000/api/technologies", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        setEmployees(empRes.data);
-        setTechnologies(techRes.data);
+        setEmployees(empRes.data || []);
+        setTechnologies(techRes.data || []);
       } catch (err) {
         console.error("Error fetching employees/tech:", err);
       }
     };
-    
     fetchPublications();
-    fetchPageData();
+    fetchCore();
   }, [token]);
 
   // --- Graph Data Processing ---
   const processGraphData = (pubData) => {
-    // 1. By Year
+    // 1) by Year
     const yearCounts = {};
-    pubData.forEach(p => {
-      if (p.year) yearCounts[p.year] = (yearCounts[p.year] || 0) + 1;
+    pubData.forEach((p) => {
+      if (p.year) {
+        const y = String(p.year);
+        yearCounts[y] = (yearCounts[y] || 0) + 1;
+      }
     });
-    setYearData(Object.entries(yearCounts).map(([year, count]) => ({ year: String(year), count })));
+    const yearArr = Object.entries(yearCounts)
+      .map(([year, count]) => ({ year, count }))
+      .sort((a, b) => a.year.localeCompare(b.year));
+    setYearData(yearArr);
 
-    // 2. By Journal
+    // 2) Top Journals
     const journalCounts = pubData.reduce((acc, p) => {
-      const journal = p.journal || "Unknown";
-      acc[journal] = (acc[journal] || 0) + 1;
+      const j = p.journal || "Unknown";
+      acc[j] = (acc[j] || 0) + 1;
       return acc;
     }, {});
-    
-    // Get top 5
-    const sortedJournals = Object.entries(journalCounts)
+    const topJ = Object.entries(journalCounts)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
-    setJournalData(sortedJournals);
+    setJournalData(topJ);
   };
 
-  // --- Modal Logic ---
-
+  // --- Modal Helpers ---
   const resetHubModal = () => {
     setHubModal({
       show: false,
-      mode: 'add',
+      mode: "add",
       publicationData: {},
-      relatedData: { authors: [], tech: null }
+      relatedData: { authors: [], tech: null },
     });
-    setModalActiveTab('overview');
+    setModalActiveTab("overview");
     setAuthorSearch("");
     setSelectedAuthors([]);
     setAuthorRole("");
@@ -253,99 +124,116 @@ export default function PublicationsPage() {
 
   const handleOpenAddModal = () => {
     resetHubModal();
-    setHubModal(prev => ({
+    setHubModal((prev) => ({
       ...prev,
       show: true,
-      mode: 'add',
+      mode: "add",
       publicationData: {
         title: "",
         authors: "",
         journal: "",
         year: new Date().getFullYear(),
         link: "",
-        tech_id: ""
-      }
+        tech_id: "",
+      },
     }));
   };
+const fetchLinkedAuthors = async (pubId) => {
+  if (!pubId) return;
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/employee_publications/publication/${pubId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setLinkedAuthors(res.data || []);
+  } catch (err) {
+    console.error("Failed to fetch authors", err);
+  }
+};
 
   const handleOpenManageModal = async (publication) => {
     resetHubModal();
-    setHubModal(prev => ({
+    setHubModal((prev) => ({
       ...prev,
       show: true,
-      mode: 'edit',
-      publicationData: publication
+      mode: "edit",
+      publicationData: publication,
     }));
-
-    // Fetch related tech and authors
     try {
-      if (publication.tech_id) {
-        const techRes = await axios.get(
-          `http://localhost:5000/api/projects/technologies/${publication.tech_id}`,
+ if (publication.tech_id) {
+       const techRes = await axios.get(
+          `http://localhost:5000/api/technologies/${publication.tech_id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setHubModal(prev => ({
+        setHubModal((prev) => ({
           ...prev,
-          relatedData: { ...prev.relatedData, tech: techRes.data }
+          relatedData: { ...prev.relatedData, tech: techRes.data },
         }));
       }
-      // You would also fetch linked authors here, e.g.:
-      // const authorsRes = await axios.get(`/api/publications/${publication.pub_id}/authors`, ...);
-      // setHubModal(prev => ({ ...prev, relatedData: { ...prev.relatedData, authors: authorsRes.data } }));
-    } catch (err) {
-      console.error("Failed to fetch related publication data", err);
+      // Load already linked authors
+     fetchLinkedAuthors(publication.pub_id);    }
+      catch (err) {
+      console.error("Failed to fetch linked tech", err);
     }
   };
 
   const handleModalFormChange = (e) => {
     const { name, value } = e.target;
-    setHubModal(prev => ({
+    setHubModal((prev) => ({
       ...prev,
-      publicationData: {
-        ...prev.publicationData,
-        [name]: value === "" ? null : value
-      }
+      publicationData: { ...prev.publicationData, [name]: value === "" ? null : value },
     }));
   };
 
   const handleSavePublication = async () => {
     const { mode, publicationData } = hubModal;
-    const confirmed = window.confirm(mode === 'add' ? "Add new publication?" : "Update this publication?");
-    if (!confirmed) return;
+    const ok = window.confirm(mode === "add" ? "Add new publication?" : "Update this publication?");
+    if (!ok) return;
 
-    // Basic validation
-    if (!publicationData.title || !publicationData.authors || !publicationData.journal || !publicationData.year || !publicationData.tech_id) {
-      alert("Please fill all required fields: Title, Authors, Journal, Year, and select a Technology.");
+    if (
+      !publicationData.title ||
+      !publicationData.journal ||
+      !publicationData.year ||
+      !publicationData.tech_id
+    ) {
+      alert("Please fill Title, Journal, Year, and select a Technology.");
       return;
     }
 
     try {
-      if (mode === 'add') {
+      if (mode === "add") {
         const res = await axios.post("http://localhost:5000/api/publications", publicationData, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Switch to edit mode
-        setHubModal(prev => ({
+        const newId =
+          res?.data?.pub_id ?? res?.data?.id ?? res?.data?.insertId ?? res?.data?.[0]?.pub_id ?? res?.data?.[0]?.id;
+        if (!newId) {
+          alert("Saved, but server did not return pub_id. Reopen from table to manage authors.");
+        }
+        setHubModal((prev) => ({
           ...prev,
-          mode: 'edit',
-          publicationData: { ...prev.publicationData, pub_id: res.data.pub_id }
+          mode: "edit",
+          publicationData: { ...prev.publicationData, pub_id: newId || prev.publicationData.pub_id },
         }));
-        setModalActiveTab('authors');
+        setModalActiveTab("authors");
+         fetchLinkedAuthors(newId);
         alert("Publication added. You can now add authors.");
       } else {
-        await axios.put(`http://localhost:5000/api/publications/${publicationData.pub_id}`, publicationData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.put(
+          `http://localhost:5000/api/publications/${publicationData.pub_id}`,
+          publicationData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         alert("Publication updated.");
       }
-      fetchPublications(); // Refresh main list
+      fetchPublications();
     } catch (err) {
       console.error(err);
       alert("Failed to save publication.");
     }
   };
 
-  // --- Delete Publication ---
+  // --- Delete ---
   const handleDeletePublication = async (pubId) => {
     if (!window.confirm("Are you sure you want to delete this publication?")) return;
     try {
@@ -361,312 +249,464 @@ export default function PublicationsPage() {
   };
 
   // --- Authors Tab Logic ---
+  const filteredEmployeesForModal = (employees || []).filter((emp) =>
+    (emp.name || "").toLowerCase().includes(authorSearch.toLowerCase())
+  );
+
   const handleLinkAuthors = async () => {
-    const { pub_id } = hubModal.publicationData;
+    const { pub_id } = hubModal.publicationData || {};
+    if (!pub_id) {
+      alert("Save the publication first.");
+      return;
+    }
     if (selectedAuthors.length === 0) {
       alert("Please select at least one employee.");
       return;
     }
-
     try {
-      const linkPromises = selectedAuthors.map(empId => 
-        axios.post(
-          "http://localhost:5000/api/employee_publications",
-          { employee_id: empId, pub_id: pub_id, role: authorRole || "Author" },
-          { headers: { Authorization: `Bearer ${token}` } }
+      await Promise.all(
+        selectedAuthors.map((empId) =>
+          axios.post(
+            "http://localhost:5000/api/employee_publications",
+            { employee_id: empId, pub_id, role: authorRole || "Author" },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
         )
       );
-      await Promise.all(linkPromises);
-      alert(`Successfully linked ${selectedAuthors.length} authors.`);
-      
+      alert(`Linked ${selectedAuthors.length} author(s).`);
       setSelectedAuthors([]);
       setAuthorRole("");
-      // You would refresh the authors list here
-      // await fetchAuthors(pub_id);
-
+       // Refresh linked authors
+    fetchLinkedAuthors(pub_id);
     } catch (err) {
       console.error(err);
       alert("Failed to link authors.");
     }
   };
+const handleUnlinkAuthor = async (linkId, name) => {
+  const ok = window.confirm(`Remove author "${name}" from this publication?`);
+  if (!ok) return;
 
-  const filteredEmployeesForModal = employees.filter(emp => 
-    emp.name.toLowerCase().includes(authorSearch.toLowerCase())
-  );
+  try {
+    await axios.delete(
+      `http://localhost:5000/api/employee_publications/${linkId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setLinkedAuthors((prev) => prev.filter((a) => a.id !== linkId));
+  } catch (err) {
+    console.error("Failed to unlink author", err);
+    alert("Failed to remove author.");
+  }
+};
 
-  // --- Filtering for main table ---
-  const filteredPublications = publications.filter((p) => {
+  // --- Filters for table ---
+  const filteredPublications = (publications || []).filter((p) => {
     const kw = (filters.keyword || "").toLowerCase();
     return (
-      (!filters.tech_id || p.tech_id === Number(filters.tech_id)) &&
-      (!filters.year || String(p.year) === filters.year) &&
+      (!filters.tech_id || Number(filters.tech_id) === Number(p.tech_id)) &&
+      (!filters.year || String(p.year) === String(filters.year)) &&
       ((p.title || "").toLowerCase().includes(kw) ||
         (p.authors || "").toLowerCase().includes(kw) ||
         (p.journal || "").toLowerCase().includes(kw))
     );
   });
-
-  // --- Render ---
+useEffect(() => {
+  const tid = hubModal?.publicationData?.tech_id;
+  if (!hubModal.show || !tid) return;
+  (async () => {
+    try {
+      const techRes = await axios.get(
+        `http://localhost:5000/api/technologies/${tid}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHubModal((prev) => ({
+        ...prev,
+        relatedData: { ...prev.relatedData, tech: techRes.data },
+      }));
+    } catch (err) {
+      console.error("Failed to fetch tech for selected tech_id", err);
+    }
+  })();
+}, [hubModal.show, hubModal?.publicationData?.tech_id, token]);
+useEffect(() => {
+  if (!hubModal.show) return;
+  if (modalActiveTab !== "authors") return;
+  const pid = hubModal?.publicationData?.pub_id;
+  if (pid) fetchLinkedAuthors(pid);
+}, [hubModal.show, modalActiveTab, hubModal?.publicationData?.pub_id]);
 
   return (
-    <div className="empsection">
-      <div className="tech-table-actions">
-        <button className="add-btn" onClick={handleOpenAddModal}>
-          ➕ Add Publication
-        </button>
-        <button
-          className="add-btn"
-          onClick={() => setShowLinkModal(true)}
-        >
-          🔗 Link Employee to Publication
-        </button>
-      </div>
+    <div className="pub-section">
+      {/* Actions */}
+      <div className="pub-table-actions">
+        <button className="pub-add-btn" onClick={handleOpenAddModal}>➕ Add Publication</button>
+         </div>
 
-      <div className="empsection-header">
-        <h2>Publications</h2>
+      {/* Header */}
+      <div className="pub-section-header">
+        <h2>PUBLICATIONS</h2>
         <p>Total Publications: {publications.length}</p>
       </div>
 
-      {/* ===== Graph Section (Now 2 Graphs) ===== */}
-      <div className="tech-graphs">
-        <div className="graph-card">
+      {/* Graphs */}
+      <div className="pub-graphs">
+        <div className="pub-graph-card">
           <h3>Publications by Year</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={yearData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#2980b9" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="pub-chart">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={yearData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="year" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#2980b9" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-        
-        {/* --- THIS IS THE FIX --- */}
-        <div className="graph-card">
+
+        <div className="pub-graph-card">
           <h3>Top 5 Journals</h3>
-          {/* Increased height to 300 to give legend space */}
-          <ResponsiveContainer width="100%" height={300}> 
-            <PieChart>
-              <Pie
-                data={journalData}
-                cx="50%"
-                cy="45%" /* Nudged pie up to make space */
-                labelLine={false}
-                label={false} /* Hide overlapping labels */
-                outerRadius={80} /* Made pie smaller */
-                fill="#8884d8"
-                dataKey="value"
-                nameKey="name"
-              >
-                {journalData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value, name) => [value, name]} />
-              {/* Configure Legend to sit at the bottom */}
-              <Legend 
-                verticalAlign="bottom" 
-                align="center" 
-                layout="horizontal" 
-                wrapperStyle={{ paddingTop: "10px" }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="pub-chart">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={journalData}
+                  cx="50%"
+                  cy="45%"
+                  labelLine={false}
+                  label={false}
+                  outerRadius={90}
+                  dataKey="value"
+                  nameKey="name"
+                >
+                  {journalData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value, name) => [value, name]} />
+                <Legend verticalAlign="bottom" align="center" layout="horizontal" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
-      {/* ===== Filters ===== */}
-      <div className="filters-panel">
-        <input type="text" placeholder="🔎 Search publications..." value={filters.keyword} onChange={(e) => setFilters({ ...filters, keyword: e.target.value })} />
-        <input type="number" placeholder="Tech ID" value={filters.tech_id} onChange={(e) => setFilters({ ...filters, tech_id: e.target.value })} />
-        <input type="number" placeholder="Year" value={filters.year} onChange={(e) => setFilters({ ...filters, year: e.target.value })} />
-        <button className="reset-btn" onClick={() => setFilters({ keyword: "", tech_id: "", year: "" })}>Reset</button>
+      {/* Filters */}
+      <div className="pub-filters-panel">
+        <input
+          type="text"
+          className="pub-input"
+          placeholder="🔎 Search publications..."
+          value={filters.keyword}
+          onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
+        />
+        <input
+          type="number"
+          className="pub-input"
+          placeholder="Tech ID"
+          value={filters.tech_id}
+          onChange={(e) => setFilters({ ...filters, tech_id: e.target.value })}
+        />
+        <input
+          type="number"
+          className="pub-input"
+          placeholder="Year"
+          value={filters.year}
+          onChange={(e) => setFilters({ ...filters, year: e.target.value })}
+        />
+        <button className="pub-reset-btn" onClick={() => setFilters({ keyword: "", tech_id: "", year: "" })}>
+          Reset
+        </button>
       </div>
 
-      {/* ===== Publications Table ===== */}
-      <div className="reports-results">
-        <table>
+      {/* Table */}
+      <div className="pub-results">
+        <table className="pub-table">
           <thead>
             <tr>
-              <th>ID</th>
+              <th style={{ width: 90 }}>ID</th>
               <th>Title</th>
               <th>Journal</th>
-              <th>Year</th>
-              <th>Tech ID</th>
-              <th>Actions</th>
+              <th style={{ width: 100 }}>Year</th>
+              <th style={{ width: 160 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredPublications.map((p) => (
               <tr key={p.pub_id}>
                 <td>{p.pub_id}</td>
-                <td>{p.title}</td>
+                <td className="pub-cell-title">{p.title}</td>
                 <td>{p.journal}</td>
                 <td>{p.year}</td>
-                <td>{p.tech_id}</td>
                 <td>
-                  <div className="action-buttons-wrapper">
-                    <button className="edit-btn" onClick={() => handleOpenManageModal(p)}>✎ Manage</button>
-                    <button className="delete-btn" onClick={() => handleDeletePublication(p.pub_id)}>🗑️</button>
+                  <div className="pub-row-actions">
+                    <button className="pub-btn-edit" onClick={() => handleOpenManageModal(p)}>✎Manage</button>
+                    <button className="pub-btn-delete" onClick={() => handleDeletePublication(p.pub_id)}>🗑️</button>
                   </div>
                 </td>
               </tr>
             ))}
+            {filteredPublications.length === 0 && (
+              <tr>
+                <td colSpan={5} className="pub-empty">No publications found.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* ===== Bulk Link Employee Modal ===== */}
-      <LinkEmployeeModal
-        show={showLinkModal}
-        onClose={() => setShowLinkModal(false)}
-        publications={publications}
-        employees={employees}
-        token={token}
-      />
-
-      {/* ===== Manage Hub Modal ===== */}
+      
+      {/* Manage Modal */}
       {hubModal.show && (
-        <div className="modal-overlay" onClick={resetHubModal}>
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={resetHubModal}>✖</button>
-            <h2>{hubModal.mode === 'add' ? "Add New Publication" : `Manage: ${hubModal.publicationData.title}`}</h2>
+        <div className="pub-modal-overlay" onClick={resetHubModal}>
+          <div
+            className="pub-modal pub-large"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <button className="pub-close-btn" onClick={resetHubModal} aria-label="Close">✖</button>
+            <h2>{hubModal.mode === "add" ? "Add New Publication" : `Manage: ${hubModal.publicationData.title}`}</h2>
 
-            <div className="modal-tabs">
+            <div className="pub-modal-tabs" role="tablist" aria-label="Publication sections">
               <button
-                className={`tab-btn ${modalActiveTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('overview')}
+                className={`pub-tab-btn ${modalActiveTab === "overview" ? "pub-active" : ""}`}
+                onClick={() => setModalActiveTab("overview")}
+                role="tab"
+                aria-selected={modalActiveTab === "overview"}
               >
                 Overview
               </button>
               <button
-                className={`tab-btn ${modalActiveTab === 'authors' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('authors')}
-                disabled={hubModal.mode === 'add'}
+                className={`pub-tab-btn ${modalActiveTab === "authors" ? "pub-active" : ""}`}
+                onClick={() => setModalActiveTab("authors")}
+                role="tab"
+                aria-selected={modalActiveTab === "authors"}
+                disabled={hubModal.mode === "add"}
+                title={hubModal.mode === "add" ? "Save Overview first" : "Authors"}
               >
                 Authors
               </button>
               <button
-                className={`tab-btn ${modalActiveTab === 'tech' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('tech')}
-                disabled={hubModal.mode === 'add' || !hubModal.publicationData.tech_id}
+                className={`pub-tab-btn ${modalActiveTab === "tech" ? "pub-active" : ""}`}
+                onClick={() => setModalActiveTab("tech")}
+                role="tab"
+                aria-selected={modalActiveTab === "tech"}
+                disabled={hubModal.mode === "add" || !hubModal.publicationData.tech_id}
+                title={!hubModal.publicationData.tech_id ? "No linked technology" : "Linked Tech"}
               >
                 Linked Tech
               </button>
             </div>
 
-            <div className="modal-tab-panel">
-              {/* --- Overview Tab (Add/Edit Form) --- */}
-              {modalActiveTab === 'overview' && (
-                <div className="modal-tab-content vertical-form">
-                  <label>Title</label>
-                  <input name="title" placeholder="Publication Title" value={hubModal.publicationData.title || ""} onChange={handleModalFormChange} />
-                  <label>Authors</label>
-                  <input name="authors" placeholder="Authors (e.g., A. Singh, B. Rao)" value={hubModal.publicationData.authors || ""} onChange={handleModalFormChange} />
-                  <label>Journal</label>
-                  <input name="journal" placeholder="Journal Name" value={hubModal.publicationData.journal || ""} onChange={handleModalFormChange} />
-                  <label>Year</label>
-                  <input name="year" type="number" placeholder="Year (e.g., 2024)" value={hubModal.publicationData.year || ""} onChange={handleModalFormChange} />
-                  <label>Link (optional)</label>
-                  <input name="link" placeholder="https://..." value={hubModal.publicationData.link || ""} onChange={handleModalFormChange} />
-                  <label>Linked Technology</label>
+            <div className="pub-modal-tab-panel">
+              {/* Overview */}
+              {modalActiveTab === "overview" && (
+                <div className="pub-modal-tab-content pub-vertical-form">
+                  <label className="pub-label">Title</label>
+                  <input
+                    className="pub-input"
+                    name="title"
+                    placeholder="Publication Title"
+                    value={hubModal.publicationData.title || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="pub-label">Journal</label>
+                  <input
+                    className="pub-input"
+                    name="journal"
+                    placeholder="Journal Name"
+                    value={hubModal.publicationData.journal || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="pub-label">Year</label>
+                  <input
+                    className="pub-input"
+                    name="year"
+                    type="number"
+                    placeholder="Year (e.g., 2025)"
+                    value={hubModal.publicationData.year || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="pub-label">Link (optional)</label>
+                  <input
+                    className="pub-input"
+                    name="link"
+                    placeholder="https://..."
+                    value={hubModal.publicationData.link || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="pub-label">Linked Technology</label>
                   <select
+                    className="pub-input"
                     name="tech_id"
                     value={hubModal.publicationData.tech_id || ""}
                     onChange={handleModalFormChange}
                   >
                     <option value="">-- Select a Technology --</option>
-                    {technologies.map(tech => (
+                    {technologies.map((tech) => (
                       <option key={tech.tech_id} value={tech.tech_id}>
                         {tech.name} (ID: {tech.tech_id})
                       </option>
                     ))}
                   </select>
-                  
-                  <div className="form-buttons">
-                    <button className="save-btn" onClick={handleSavePublication}>
-                      {hubModal.mode === 'add' ? "Save and Continue" : "Save Changes"}
+
+                  <div className="pub-form-buttons">
+                    <button className="pub-save-btn" onClick={handleSavePublication}>
+                      {hubModal.mode === "add" ? "Save and Continue" : "Save Changes"}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* --- Authors Tab --- */}
-              {modalActiveTab === 'authors' && (
-                <div className="modal-tab-content">
-                  <h4>Link Authors</h4>
-                  <p>
-                    Select employees to link as authors for this publication.
-                  </p>
+              {/* Authors */}
+              {modalActiveTab === "authors" && (
+                <div className="pub-modal-tab-content">
+                  <h4>LINKED AUTHORS</h4>
                   
-                  {/* You would also show a list of *current* authors here */}
-                  {/* <div className="current-team-list"> ... </div> */}
+    {/* ✅ Already linked authors */}
+    <div className="pub-linked-authors" style={{ marginBottom: 12 }}>
 
-                  <div className="link-modal-section">
-                    <b>Role for new author(s):</b>
+      {(!linkedAuthors || linkedAuthors.length === 0) ? (
+        <div className="pub-empty">No authors linked yet.</div>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
+          {linkedAuthors.map((a) => (
+  <li
+    key={a.id}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      background: "#f0f2f5",
+      padding: "6px 10px",
+      borderRadius: 6
+    }}
+  >
+    <span style={{ fontWeight: 600 }}>{a.name}</span>
+    <span style={{ opacity: 0.7 }}>
+      ({a.employee_id}) · {a.department || "—"}
+    </span>
+
+    {a.role && (
+      <span
+        style={{
+          fontSize: 12,
+          padding: "2px 8px",
+          borderRadius: 999,
+          border: "1px solid #ccc"
+        }}
+      >
+        {a.role}
+      </span>
+    )}
+
+    {/* ❌ REMOVE BUTTON */}
+    <button
+      onClick={() => handleUnlinkAuthor(a.id, a.name)}
+      style={{
+        marginLeft: "auto",
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        color: "#d11a2a",
+        fontSize: 16,
+        fontWeight: "bold"
+      }}
+      title="Remove author"
+    >
+      ✖
+    </button>
+  </li>
+))}
+
+        </ul>
+      )}
+    </div><hr></hr>
+                  <div className="pub-link-section">
+                    <b>ADD NEW AUTHOR(S):</b>
                     <input
                       type="text"
+                      className="pub-input"
                       value={authorRole}
-                      onChange={(e) => setAuthorRole(e.g.target.value)}
+                      onChange={(e) => setAuthorRole(e.target.value)}
                       placeholder="E.g., Lead Author, Co-Author"
                     />
-                  </div>
-                  
-                  <div className="link-modal-section">
-                    <b>Available Employees:</b>
+
                     <input
                       type="text"
+                      className="pub-input"
                       placeholder="Search employees..."
                       value={authorSearch}
                       onChange={(e) => setAuthorSearch(e.target.value)}
                     />
-                    <div className="searchable-table" style={{ maxHeight: "200px" }}>
-                      <table>
-                        <thead><tr><th>Select</th><th>ID</th><th>Name</th><th>Dept</th></tr></thead>
+                    <div className="pub-searchable-table">
+                      <table className="pub-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: 80, textAlign: "center" }}>Select</th>
+                            <th style={{ width: 100 }}>ID</th>
+                            <th>Name</th>
+                            <th>Dept</th>
+                          </tr>
+                        </thead>
                         <tbody>
-                          {filteredEmployeesForModal.map(emp => (
-                            <tr key={emp.employee_id}>
-                              <td>
+                          {filteredEmployeesForModal.map((emp) => (
+                            <tr key={emp.employee_id} className="pub-row-hover">
+                              <td style={{ textAlign: "center" }}>
                                 <input
                                   type="checkbox"
                                   checked={selectedAuthors.includes(emp.employee_id)}
                                   onChange={(e) => {
                                     const id = emp.employee_id;
-                                    setSelectedAuthors(prev =>
-                                      e.target.checked ? [...prev, id] : prev.filter(i => i !== id)
+                                    setSelectedAuthors((prev) =>
+                                      e.target.checked ? [...prev, id] : prev.filter((i) => i !== id)
                                     );
                                   }}
                                 />
                               </td>
-                              <td>{emp.employee_id}</td><td>{emp.name}</td><td>{emp.department}</td>
+                              <td>{emp.employee_id}</td>
+                              <td>{emp.name}</td>
+                              <td>{emp.department}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
                   </div>
-                  <div className="form-buttons">
-                    <button className="save-btn" onClick={handleLinkAuthors}>
+
+                  <div className="pub-form-buttons">
+                    <button className="pub-save-btn" onClick={handleLinkAuthors}>
                       💾 Link Selected Authors
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* --- Linked Tech Tab --- */}
-              {modalActiveTab === 'tech' && (
-                <div className="modal-tab-content">
+              {/* Linked Tech */}
+              {modalActiveTab === "tech" && (
+                <div className="pub-modal-tab-content">
                   <h4>Linked Technology Details</h4>
-                  {hubModal.relatedData.tech ? (
-                    <div>
+                  {hubModal.relatedData?.tech ? (
+                    <div className="pub-tech-card">
                       <h3>{hubModal.relatedData.tech.name}</h3>
-                      <p><b>Category:</b> {hubModal.relatedData.tech.category}</p>
-                      <p><b>Status:</b> {hubModal.relatedData.tech.status}</p>
-                      <p><b>TRL:</b> {hubModal.relatedData.tech.trl_achieved}</p>
+                      <div className="pub-tech-detail"><b>Category:</b> {hubModal.relatedData.tech.category}</div>
+                      <div className="pub-tech-detail"><b>Status:</b> {hubModal.relatedData.tech.status}</div>
+                      <div className="pub-tech-detail"><b>TRL:</b> {hubModal.relatedData.tech.trl_achieved}</div>
+                        {hubModal.relatedData.tech.location && (
+        <div className="pub-tech-detail"><b>Location:</b> {hubModal.relatedData.tech.location}</div>
+      )}
+      {hubModal.relatedData.tech.salient_features && (
+        <div className="pub-tech-detail"><b>Features:</b> {hubModal.relatedData.tech.salient_features}</div>
+      )}
                     </div>
                   ) : (
-                    <p>No technology linked or details not found.</p>
+                    <p className="pub-empty">No technology linked or details not found.</p>
                   )}
                 </div>
               )}

@@ -1,6 +1,7 @@
+// EmployeesPage.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "../../styles/employee.projects.css"; // Re-uses the same CSS
+import "../../styles/employee.employees.css";
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,39 +19,41 @@ import {
 export default function EmployeesPage() {
   const token = localStorage.getItem("token");
   const [employees, setEmployees] = useState([]);
-  
+
   // Graph State
   const [deptData, setDeptData] = useState([]);
   const [statusData, setStatusData] = useState([]);
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
+  const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#6366f1"];
 
   // Filter State
-  const [filters, setFilters] = useState({ keyword: "", department: "", status: "" });
-  
+  const [filters, setFilters] = useState({
+    keyword: "",
+    department: "",
+    status: "",
+  });
+
   // Hub Modal State
   const [hubModal, setHubModal] = useState({
     show: false,
-    mode: 'add',
+    mode: "add",
     employeeData: {},
     relatedData: { projects: [], patents: [], publications: [] },
-    newProfilePic: null, // For file upload
-    picPreview: null // For file preview
+    newProfilePic: null,
+    picPreview: null,
   });
-  const [modalActiveTab, setModalActiveTab] = useState('overview');
-
-  // --- Data Fetching ---
+  const [modalActiveTab, setModalActiveTab] = useState("overview");
 
   const fetchEmployees = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/employees", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const formatted = res.data.map(emp => ({
+      const formatted = res.data.map((emp) => ({
         ...emp,
         profile_pic: emp.profile_pic ? emp.profile_pic : null,
       }));
       setEmployees(formatted);
-      processGraphData(formatted); // Process graph data
+      processGraphData(formatted);
     } catch (err) {
       console.error(err);
     }
@@ -58,11 +61,12 @@ export default function EmployeesPage() {
 
   useEffect(() => {
     fetchEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   // --- Graph Data Processing ---
   const processGraphData = (data) => {
-    // 1. By Department
+    // By Department
     const deptCounts = data.reduce((acc, e) => {
       const dept = e.department || "Unknown";
       acc[dept] = (acc[dept] || 0) + 1;
@@ -71,10 +75,11 @@ export default function EmployeesPage() {
     setDeptData(
       Object.entries(deptCounts).map(([name, count]) => ({ name, count }))
     );
-    
-    // 2. By Status
+
+    // By Status
     const statusCounts = data.reduce((acc, e) => {
-      acc[e.status] = (acc[e.status] || 0) + 1;
+      const st = e.status || "Unknown";
+      acc[st] = (acc[st] || 0) + 1;
       return acc;
     }, {});
     setStatusData(
@@ -83,48 +88,55 @@ export default function EmployeesPage() {
   };
 
   // --- Modal Logic ---
-
   const resetHubModal = () => {
     setHubModal({
       show: false,
-      mode: 'add',
+      mode: "add",
       employeeData: {},
       relatedData: { projects: [], patents: [], publications: [] },
       newProfilePic: null,
-      picPreview: null
+      picPreview: null,
     });
-    setModalActiveTab('overview');
+    setModalActiveTab("overview");
   };
 
   const handleOpenAddModal = () => {
     resetHubModal();
-    setHubModal(prev => ({
+    setHubModal((prev) => ({
       ...prev,
       show: true,
-      mode: 'add',
-      employeeData: { name: "", designation: "", department: "", email: "", phone: "", status: "Active" }
+      mode: "add",
+      employeeData: {
+        name: "",
+        designation: "",
+        department: "",
+        email: "",
+        phone: "",
+        status: "Active",
+      },
     }));
   };
 
   const handleOpenManageModal = async (emp) => {
     resetHubModal();
-    setHubModal(prev => ({
+    setHubModal((prev) => ({
       ...prev,
       show: true,
-      mode: 'edit',
+      mode: "edit",
       employeeData: emp,
-      // Set preview from existing pic
-      picPreview: emp.profile_pic ? `data:image/jpeg;base64,${emp.profile_pic}` : null
+      picPreview: emp.profile_pic
+        ? `data:image/jpeg;base64,${emp.profile_pic}`
+        : null,
     }));
 
-    // Fetch contributions
     try {
-      const res = await axios.get(`http://localhost:5000/api/employees/${emp.employee_id}/contributions`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setHubModal(prev => ({
+      const res = await axios.get(
+        `http://localhost:5000/api/employees/${emp.employee_id}/contributions`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setHubModal((prev) => ({
         ...prev,
-        relatedData: res.data
+        relatedData: res.data,
       }));
     } catch (err) {
       console.error("Failed to fetch contributions", err);
@@ -133,69 +145,88 @@ export default function EmployeesPage() {
 
   const handleModalFormChange = (e) => {
     const { name, value } = e.target;
-    setHubModal(prev => ({
+    setHubModal((prev) => ({
       ...prev,
       employeeData: {
         ...prev.employeeData,
-        [name]: value
-      }
+        [name]: value,
+      },
     }));
   };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setHubModal(prev => ({
+      setHubModal((prev) => ({
         ...prev,
         newProfilePic: file,
-        picPreview: URL.createObjectURL(file)
+        picPreview: URL.createObjectURL(file),
       }));
     }
   };
 
   const handleSaveEmployee = async () => {
     const { mode, employeeData, newProfilePic } = hubModal;
-    const confirmed = window.confirm(mode === 'add' ? "Add new employee?" : "Update this employee?");
+    const confirmed = window.confirm(
+      mode === "add" ? "Add new employee?" : "Update this employee?"
+    );
     if (!confirmed) return;
 
     const formData = new FormData();
-    formData.append("name", employeeData.name);
-    formData.append("designation", employeeData.designation);
-    formData.append("department", employeeData.department);
-    formData.append("email", employeeData.email);
-    formData.append("phone", employeeData.phone);
-    formData.append("status", employeeData.status);
+    formData.append("name", employeeData.name || "");
+    formData.append("designation", employeeData.designation || "");
+    formData.append("department", employeeData.department || "");
+    formData.append("email", employeeData.email || "");
+    formData.append("phone", employeeData.phone || "");
+    formData.append("status", employeeData.status || "Active");
     if (newProfilePic) {
       formData.append("profile_pic", newProfilePic);
     }
 
     try {
-      if (mode === 'add') {
-        const res = await axios.post("http://localhost:5000/api/employees", formData, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-        });
-        // Switch to edit mode
-        setHubModal(prev => ({
+      if (mode === "add") {
+        const res = await axios.post(
+          "http://localhost:5000/api/employees",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        setHubModal((prev) => ({
           ...prev,
-          mode: 'edit',
-          employeeData: { ...prev.employeeData, employee_id: res.data.employee_id }
+          mode: "edit",
+          employeeData: {
+            ...prev.employeeData,
+            employee_id: res.data.employee_id,
+          },
         }));
-        setModalActiveTab('projects'); // Go to next tab
-        alert("Employee added. You can now view their contributions (link them from other pages).");
+        setModalActiveTab("projects");
+        alert(
+          "Employee added. You can now view their contributions (link them from other pages)."
+        );
       } else {
-        await axios.put(`http://localhost:5000/api/employees/${employeeData.employee_id}`, formData, {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-        });
+        await axios.put(
+          `http://localhost:5000/api/employees/${employeeData.employee_id}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         alert("Employee updated.");
       }
-      fetchEmployees(); // Refresh main list
+      fetchEmployees();
     } catch (err) {
       console.error(err);
       alert("Failed to save employee.");
     }
   };
 
-  // --- Delete Employee ---
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this employee?")) return;
     try {
@@ -212,85 +243,121 @@ export default function EmployeesPage() {
   const filteredEmployees = employees.filter((e) => {
     const kw = filters.keyword.toLowerCase();
     return (
-      (!filters.department || (e.department || "").toLowerCase().includes(filters.department.toLowerCase())) &&
+      (!filters.department ||
+        (e.department || "")
+          .toLowerCase()
+          .includes(filters.department.toLowerCase())) &&
       (!filters.status || e.status === filters.status) &&
-      (e.name.toLowerCase().includes(kw) || e.email.toLowerCase().includes(kw) || (e.designation || "").toLowerCase().includes(kw))
+      ((e.name || "").toLowerCase().includes(kw) ||
+        (e.email || "").toLowerCase().includes(kw) ||
+        (e.designation || "").toLowerCase().includes(kw))
     );
   });
 
-  // --- Render ---
+  const statusBadgeClass = (status) => {
+    const base = "em-badge";
+    if (status === "Active") return `${base} em-badge--success`;
+    if (status === "On Leave") return `${base} em-badge--warning`;
+    if (status === "Retired") return `${base} em-badge--neutral`;
+    return `${base} em-badge--neutral`;
+  };
 
   return (
-    <div className="empsection">
-      <div className="tech-table-actions">
-        <button className="add-btn" onClick={handleOpenAddModal}>
-          ➕ Add Employee
-        </button>
-      </div>
-
-      <div className="empsection-header">
-        <h2>Employees</h2>
-        <p>Total Employees: {employees.length}</p>
-      </div>
-
-      {/* ===== Graphs Section ===== */}
-      <div className="tech-graphs">
-        <div className="graph-card">
-          <h3>Employees by Department</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={deptData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#2980b9" />
-            </BarChart>
-          </ResponsiveContainer>
+    <div className="em-page">
+      {/* Header / Actions */}
+      <div className="em-header">
+        <div>
+          <h2 className="em-title">EMPLOYEES</h2>
+          <p className="em-subtitle">Total Employees: {employees.length}</p>
         </div>
-        <div className="graph-card">
-          <h3>Employees by Status</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="45%"
-                labelLine={false}
-                label={false}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                nameKey="name"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value, name) => [value, name]} />
-              <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: "10px" }} />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="em-actions">
+          <button className="em-btn em-btn--primary" onClick={handleOpenAddModal}>
+            <span aria-hidden="true">➕</span> Add Employee
+          </button>
         </div>
       </div>
 
-      {/* ===== Filters ===== */}
-      <div className="filters-panel">
-        <input type="text" placeholder="🔎 Search by name/email..." value={filters.keyword} onChange={(e) => setFilters({ ...filters, keyword: e.target.value })} />
-        <input type="text" placeholder="Department" value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })} />
-        <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
+      {/* Graphs */}
+      <section className="em-graphs">
+        <article className="em-card">
+          <h3 className="em-card__title">Employees by Department</h3>
+          <div className="em-card__body">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={deptData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </article>
+
+        <article className="em-card">
+          <h3 className="em-card__title">Employees by Status</h3>
+          <div className="em-card__body">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="45%"
+                  labelLine={false}
+                  label={false}
+                  outerRadius={85}
+                  dataKey="value"
+                  nameKey="name"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value, name) => [value, name]} />
+                <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 10 }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </article>
+      </section>
+
+      {/* Filters */}
+      <section className="em-filters" aria-label="Employees filters">
+        <input
+          className="em-input"
+          type="text"
+          placeholder="🔎 Search by name/email..."
+          value={filters.keyword}
+          onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
+        />
+        <input
+          className="em-input"
+          type="text"
+          placeholder="Department"
+          value={filters.department}
+          onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+        />
+        <select
+          className="em-select"
+          value={filters.status}
+          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+        >
           <option value="">All Status</option>
           <option value="Active">Active</option>
           <option value="On Leave">On Leave</option>
           <option value="Retired">Retired</option>
         </select>
-        <button className="reset-btn" onClick={() => setFilters({ keyword: "", department: "", status: "" })}>
+        <button
+          className="em-btn em-btn--ghost"
+          onClick={() => setFilters({ keyword: "", department: "", status: "" })}
+        >
           Reset
         </button>
-      </div>
+      </section>
 
-      {/* ===== Employees Table ===== */}
-      <div className="reports-results">
-        <table>
+      {/* Table */}
+      <section className="em-table-wrap">
+        <table className="em-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -298,7 +365,7 @@ export default function EmployeesPage() {
               <th>Name</th>
               <th>Designation</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th className="em-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -307,161 +374,221 @@ export default function EmployeesPage() {
                 <td>{emp.employee_id}</td>
                 <td>
                   {emp.profile_pic ? (
-                    <img src={`data:image/jpeg;base64,${emp.profile_pic}`} alt="Profile" width="40" height="40" style={{ borderRadius: "50%", objectFit: "cover" }} />
+                    <img
+                      className="em-avatar"
+                      src={`data:image/jpeg;base64,${emp.profile_pic}`}
+                      alt={`${emp.name}'s profile`}
+                    />
                   ) : (
-                    <div style={{width: 40, height: 40, borderRadius: "50%", background: "#eee", textAlign: "center", lineHeight: "40px", fontWeight: "bold"}}>
-                      {emp.name[0]}
+                    <div className="em-avatar em-avatar--placeholder" aria-hidden="true">
+                      {(emp.name || "?").charAt(0).toUpperCase()}
                     </div>
                   )}
                 </td>
-                <td>{emp.name}</td>
+                <td className="em-cell-strong">{emp.name}</td>
                 <td>{emp.designation}</td>
                 <td>
-                  <span style={{ 
-                    color: emp.status === "Active" ? "green" : emp.status === "On Leave" ? "orange" : "gray", 
-                    fontWeight: "bold" 
-                  }}>
-                    {emp.status}
-                  </span>
+                  <span className={statusBadgeClass(emp.status)}>{emp.status}</span>
                 </td>
                 <td>
-                  <div className="action-buttons-wrapper">
-                    <button className="edit-btn" onClick={() => handleOpenManageModal(emp)}>✎ Manage</button>
-                    <button className="delete-btn" onClick={() => handleDelete(emp.employee_id)}>🗑️</button>
+                  <div className="em-row-actions">
+                    <button
+                      className="em-btn em-btn--secondary"
+                      onClick={() => handleOpenManageModal(emp)}
+                    >
+                      ✎Manage
+                    </button>
+                    <button
+                      className="em-btn em-btn--danger"
+                      onClick={() => handleDelete(emp.employee_id)}
+                      aria-label={`Delete ${emp.name}`}
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </td>
               </tr>
             ))}
+            {filteredEmployees.length === 0 && (
+              <tr>
+                <td colSpan="6" className="em-empty">
+                  No employees match your filters.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-      </div>
+      </section>
 
-      {/* ===== Manage Hub Modal ===== */}
+      {/* Modal */}
       {hubModal.show && (
-        <div className="modal-overlay" onClick={resetHubModal}>
-          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={resetHubModal}>✖</button>
-            <h2>{hubModal.mode === 'add' ? "Add New Employee" : `Manage: ${hubModal.employeeData.name}`}</h2>
+        <div className="em-modal-overlay" onClick={resetHubModal} role="dialog" aria-modal="true">
+          <div
+            className="em-modal-content em-modal-content--large"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="em-modal-close" onClick={resetHubModal} aria-label="Close modal">
+              ✖
+            </button>
+            <h2 className="em-modal-title">
+              {hubModal.mode === "add"
+                ? "Add New Employee"
+                : `Manage: ${hubModal.employeeData.name}`}
+            </h2>
 
-            <div className="modal-tabs">
+            <div className="em-tabs">
               <button
-                className={`tab-btn ${modalActiveTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('overview')}
+                className={`em-tab-btn ${
+                  modalActiveTab === "overview" ? "em-tab-btn--active" : ""
+                }`}
+                onClick={() => setModalActiveTab("overview")}
               >
                 Overview
               </button>
               <button
-                className={`tab-btn ${modalActiveTab === 'projects' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('projects')}
-                disabled={hubModal.mode === 'add'}
+                className={`em-tab-btn ${
+                  modalActiveTab === "projects" ? "em-tab-btn--active" : ""
+                }`}
+                onClick={() => setModalActiveTab("projects")}
+                disabled={hubModal.mode === "add"}
               >
                 Projects
               </button>
               <button
-                className={`tab-btn ${modalActiveTab === 'patents' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('patents')}
-                disabled={hubModal.mode === 'add'}
+                className={`em-tab-btn ${
+                  modalActiveTab === "patents" ? "em-tab-btn--active" : ""
+                }`}
+                onClick={() => setModalActiveTab("patents")}
+                disabled={hubModal.mode === "add"}
               >
                 Patents
               </button>
               <button
-                className={`tab-btn ${modalActiveTab === 'publications' ? 'active' : ''}`}
-                onClick={() => setModalActiveTab('publications')}
-                disabled={hubModal.mode === 'add'}
+                className={`em-tab-btn ${
+                  modalActiveTab === "publications" ? "em-tab-btn--active" : ""
+                }`}
+                onClick={() => setModalActiveTab("publications")}
+                disabled={hubModal.mode === "add"}
               >
                 Publications
               </button>
             </div>
 
-            <div className="modal-tab-panel">
-              {/* --- Overview Tab (Add/Edit Form) --- */}
-              {modalActiveTab === 'overview' && (
-                <div className="modal-tab-content vertical-form">
-                  <label>Name</label>
-                  <input name="name" placeholder="Full Name" value={hubModal.employeeData.name || ""} onChange={handleModalFormChange} />
-                  <label>Designation</label>
-                  <input name="designation" placeholder="Designation" value={hubModal.employeeData.designation || ""} onChange={handleModalFormChange} />
-                  <label>Department</label>
-                  <input name="department" placeholder="Department" value={hubModal.employeeData.department || ""} onChange={handleModalFormChange} />
-                  <label>Email</label>
-                  <input name="email" type="email" placeholder="Email" value={hubModal.employeeData.email || ""} onChange={handleModalFormChange} />
-                  <label>Phone</label>
-                  <input name="phone" placeholder="Phone" value={hubModal.employeeData.phone || ""} onChange={handleModalFormChange} />
-                  <label>Status</label>
-                  <select name="status" value={hubModal.employeeData.status || "Active"} onChange={handleModalFormChange}>
+            <div className="em-tab-panel">
+              {/* Overview */}
+              {modalActiveTab === "overview" && (
+                <div className="em-form-grid">
+                  <label className="em-label">Name</label>
+                  <input
+                    className="em-input"
+                    name="name"
+                    placeholder="Full Name"
+                    value={hubModal.employeeData.name || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="em-label">Designation</label>
+                  <input
+                    className="em-input"
+                    name="designation"
+                    placeholder="Designation"
+                    value={hubModal.employeeData.designation || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="em-label">Department</label>
+                  <input
+                    className="em-input"
+                    name="department"
+                    placeholder="Department"
+                    value={hubModal.employeeData.department || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="em-label">Email</label>
+                  <input
+                    className="em-input"
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    value={hubModal.employeeData.email || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="em-label">Phone</label>
+                  <input
+                    className="em-input"
+                    name="phone"
+                    placeholder="Phone"
+                    value={hubModal.employeeData.phone || ""}
+                    onChange={handleModalFormChange}
+                  />
+
+                  <label className="em-label">Status</label>
+                  <select
+                    className="em-select"
+                    name="status"
+                    value={hubModal.employeeData.status || "Active"}
+                    onChange={handleModalFormChange}
+                  >
                     <option value="Active">Active</option>
                     <option value="On Leave">On Leave</option>
                     <option value="Retired">Retired</option>
                   </select>
-                  
-                  <label>Profile Picture</label>
-                  <div style={{ gridColumn: "1 / -1" }}>
+
+                  <label className="em-label">Profile Picture</label>
+                  <div className="em-file-field">
                     {hubModal.picPreview && (
-                      <img src={hubModal.picPreview} alt="Profile Preview" style={{ width: "120px", height: "120px", objectFit: "cover", borderRadius: "50%", marginBottom: "10px" }} />
+                      <img
+                        className="em-avatar em-avatar--lg"
+                        src={hubModal.picPreview}
+                        alt="Profile preview"
+                      />
                     )}
-                    <input type="file" accept="image/*" onChange={handleFileChange} />
+                    <input
+                      className="em-input-file"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
                   </div>
-                  
-                  <div className="form-buttons">
-                    <button className="save-btn" onClick={handleSaveEmployee}>
-                      {hubModal.mode === 'add' ? "Save" : "Save Changes"}
+
+                  <div className="em-form-actions">
+                    <button className="em-btn em-btn--primary" onClick={handleSaveEmployee}>
+                      {hubModal.mode === "add" ? "Save" : "Save Changes"}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* --- Contributions Tabs --- */}
-              {modalActiveTab === 'projects' && (
-                <div className="modal-tab-content">
-                  <h4>Linked Projects</h4>
-                  <div className="searchable-table" style={{ maxHeight: "400px" }}>
-                    <table>
-                      <thead><tr><th>ID</th><th>Project Name</th><th>Role</th></tr></thead>
+              {/* Projects */}
+              {modalActiveTab === "projects" && (
+                <div className="em-tab-content">
+                  <h4 className="em-section-title">Linked Projects</h4>
+                  <div className="em-table-scroll">
+                    <table className="em-table em-table--compact">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Project Name</th>
+                          <th>Role</th>
+                        </tr>
+                      </thead>
                       <tbody>
                         {hubModal.relatedData.projects?.length > 0 ? (
-                          hubModal.relatedData.projects.map(p => (
-                            <tr key={p.project_id}><td>{p.project_id}</td><td>{p.name}</td><td>{p.role}</td></tr>
+                          hubModal.relatedData.projects.map((p) => (
+                            <tr key={p.project_id}>
+                              <td>{p.project_id}</td>
+                              <td className="em-cell-strong">{p.name}</td>
+<td>{p.role}</td>
+                            </tr>
                           ))
                         ) : (
-                          <tr><td colSpan="3" style={{textAlign: 'center'}}>No projects found.</td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-              {modalActiveTab === 'patents' && (
-                <div className="modal-tab-content">
-                  <h4>Linked Patents</h4>
-                  <div className="searchable-table" style={{ maxHeight: "400px" }}>
-                    <table>
-                      <thead><tr><th>ID</th><th>Patent Title</th><th>Role</th></tr></thead>
-                      <tbody>
-                        {hubModal.relatedData.patents?.length > 0 ? (
-                          hubModal.relatedData.patents.map(p => (
-                            <tr key={p.patent_id}><td>{p.patent_id}</td><td>{p.title}</td><td>{p.role}</td></tr>
-                          ))
-                        ) : (
-                          <tr><td colSpan="3" style={{textAlign: 'center'}}>No patents found.</td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-              {modalActiveTab === 'publications' && (
-                <div className="modal-tab-content">
-                  <h4>Linked Publications</h4>
-                  <div className="searchable-table" style={{ maxHeight: "400px" }}>
-                    <table>
-                      <thead><tr><th>ID</th><th>Publication Title</th><th>Role</th></tr></thead>
-                      <tbody>
-                        {hubModal.relatedData.publications?.length > 0 ? (
-                          hubModal.relatedData.publications.map(p => (
-                            <tr key={p.pub_id}><td>{p.pub_id}</td><td>{p.title}</td><td>{p.role}</td></tr>
-                          ))
-                        ) : (
-                          <tr><td colSpan="3" style={{textAlign: 'center'}}>No publications found.</td></tr>
+                          <tr>
+                            <td colSpan="3" className="em-empty">
+                              No projects found.
+                            </td>
+                          </tr>
                         )}
                       </tbody>
                     </table>
@@ -469,6 +596,75 @@ export default function EmployeesPage() {
                 </div>
               )}
 
+              {/* Patents */}
+              {modalActiveTab === "patents" && (
+                <div className="em-tab-content">
+                  <h4 className="em-section-title">Linked Patents</h4>
+                  <div className="em-table-scroll">
+                    <table className="em-table em-table--compact">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Patent Title</th>
+                          <th>Role</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {hubModal.relatedData.patents?.length > 0 ? (
+                          hubModal.relatedData.patents.map((p) => (
+                            <tr key={p.patent_id}>
+                              <td>{p.patent_id}</td>
+                              <td className="em-cell-strong">{p.title}</td>
+                              <td>{p.role}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="3" className="em-empty">
+                              No patents found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Publications */}
+              {modalActiveTab === "publications" && (
+                <div className="em-tab-content">
+                  <h4 className="em-section-title">Linked Publications</h4>
+                  <div className="em-table-scroll">
+                    <table className="em-table em-table--compact">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Publication Title</th>
+                          <th>Role</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {hubModal.relatedData.publications?.length > 0 ? (
+                          hubModal.relatedData.publications.map((p) => (
+                            <tr key={p.pub_id}>
+                              <td>{p.pub_id}</td>
+                              <td className="em-cell-strong">{p.title}</td>
+                              <td>{p.role}</td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="3" className="em-empty">
+                              No publications found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

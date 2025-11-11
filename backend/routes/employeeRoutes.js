@@ -49,6 +49,7 @@ router.get("/:employee_id", verifyToken, (req, res) => {
 });
 
 // ===== POST new employee =====
+// ===== POST new employee =====
 router.post("/", verifyToken, isEmployee, upload.single("profile_pic"), (req, res) => {
   const { name, designation, department, email, phone, status } = req.body;
   const profilePic = req.file ? req.file.buffer : null;
@@ -62,10 +63,12 @@ router.post("/", verifyToken, isEmployee, upload.single("profile_pic"), (req, re
         console.error("Error adding employee:", err);
         return res.status(500).json({ error: "Server error" });
       }
-      res.json({ message: "Employee added successfully" });
+      // IMPORTANT: send back insertId so the UI can switch to edit mode with the new id
+      res.json({ message: "Employee added successfully", employee_id: result.insertId });
     }
   );
 });
+
 
 // ===== PUT update employee =====
 router.put("/:employee_id", verifyToken, isEmployee, upload.single("profile_pic"), (req, res) => {
@@ -109,16 +112,23 @@ router.delete("/:employee_id", verifyToken, isEmployee, (req, res) => {
 });
 
 // ===== GET employee contributions =====
-router.get("/:id/contributions", (req, res) => {
+// ===== GET employee contributions =====
+router.get("/:id/contributions", verifyToken, (req, res) => {
   const { id } = req.params;
   const contributions = { projects: [], patents: [], publications: [] };
 
-  // Step 1: Get projects
+  // 1) Projects: { project_id, name, role }
   db.query(
-    `SELECT p.project_id, p.name, ep.role
-     FROM employee_projects ep
-     JOIN projects p ON ep.project_id = p.project_id
-     WHERE ep.employee_id = ?`,
+    `
+    SELECT 
+      p.project_id,
+      p.name,
+      COALESCE(ep.role, '-') AS role
+    FROM employee_projects ep
+    JOIN projects p ON p.project_id = ep.project_id
+    WHERE ep.employee_id = ?
+    ORDER BY p.name ASC
+    `,
     [id],
     (err, projects) => {
       if (err) {
@@ -127,12 +137,18 @@ router.get("/:id/contributions", (req, res) => {
       }
       contributions.projects = projects || [];
 
-      // Step 2: Get patents
+      // 2) Patents: { patent_id, title, role }
       db.query(
-        `SELECT pa.patent_id, pa.title AS name, pa.patent_number
-         FROM employee_patents ep
-         JOIN patents pa ON ep.patent_id = pa.patent_id
-         WHERE ep.employee_id = ?`,
+        `
+        SELECT
+          pa.patent_id,
+          pa.title AS title,
+          COALESCE(ep.role, '-') AS role
+        FROM employee_patents ep
+        JOIN patents pa ON pa.patent_id = ep.patent_id
+        WHERE ep.employee_id = ?
+        ORDER BY pa.title ASC
+        `,
         [id],
         (err, patents) => {
           if (err) {
@@ -141,12 +157,18 @@ router.get("/:id/contributions", (req, res) => {
           }
           contributions.patents = patents || [];
 
-          // Step 3: Get publications
+          // 3) Publications: { pub_id, title, role }
           db.query(
-            `SELECT pb.pub_id, pb.title AS name, pb.link
-             FROM employee_publications ep
-             JOIN publications pb ON ep.pub_id = pb.pub_id
-             WHERE ep.employee_id = ?`,
+            `
+            SELECT
+              pb.pub_id,
+              pb.title AS title,
+              COALESCE(ep.role, '-') AS role
+            FROM employee_publications ep
+            JOIN publications pb ON pb.pub_id = ep.pub_id
+            WHERE ep.employee_id = ?
+            ORDER BY pb.title ASC
+            `,
             [id],
             (err, publications) => {
               if (err) {
@@ -155,7 +177,6 @@ router.get("/:id/contributions", (req, res) => {
               }
               contributions.publications = publications || [];
 
-              // Send final combined response
               res.json(contributions);
             }
           );

@@ -67,22 +67,31 @@ router.get("/project_companies", (req, res) => {
   });
 });
 
-// Get collaborations for a specific company
 router.get("/company/:company_id/collaborations", (req, res) => {
   const { company_id } = req.params;
   const sql = `
-    SELECT pc.project_id, p.name AS project_name, pc.role_in_project
+    SELECT 
+      pc.id,                 -- << add this
+      pc.project_id, 
+      p.name AS project_name, 
+      pc.role_in_project
     FROM project_companies pc
     JOIN projects p ON pc.project_id = p.project_id
     WHERE pc.company_id = ?
     ORDER BY pc.id DESC
   `;
   pool.query(sql, [company_id], (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Server Error" });
-    }
+    if (err) return res.status(500).json({ error: "Server Error" });
     res.json(rows);
+  });
+});
+
+router.delete("/project_companies/:id", (req, res) => {
+  const { id } = req.params;
+  pool.query("DELETE FROM project_companies WHERE id = ?", [id], (err, result) => {
+    if (err) return res.status(500).json({ error: "Server Error" });
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Not found" });
+    res.sendStatus(204);
   });
 });
 

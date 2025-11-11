@@ -9,8 +9,8 @@ function AuthPage() {
   const [resending, setResending] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email;
-
+const emailFromState = location.state?.email;
+const email = emailFromState || localStorage.getItem("pendingEmail");
   useEffect(() => {
     const countdown = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
@@ -18,31 +18,44 @@ function AuthPage() {
     return () => clearInterval(countdown);
   }, []);
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("http://localhost:5000/api/auth/verify-otp", {
-        email,
-        otp,
-      });
-      alert("OTP verified! Registration complete.");
-      navigate("/login");
-    } catch (err) {
-      alert("Invalid OTP. Try again.");
-    }
-  };
+ // 1) VERIFY — always send sanitized values
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  const cleanEmail = String(email || "").trim().toLowerCase();
+  const cleanOtp = String(otp || "").trim().replace(/\s+/g, "");
 
-  const handleResendOtp = async () => {
-    setResending(true);
-    try {
-      await axios.post("http://localhost:5000/api/auth/send-otp", { email });
-      alert("OTP resent.");
-      setTimer(60);
-    } catch (err) {
-      alert("Failed to resend OTP.");
-    }
-    setResending(false);
-  };
+  if (!/^\d{6}$/.test(cleanOtp)) {
+    alert("Enter a valid 6-digit OTP.");
+    return;
+  }
+
+  try {
+    await axios.post("http://localhost:5000/api/auth/verify-otp", {
+      email: cleanEmail,
+      otp: cleanOtp, // keep as string
+    });
+    alert("OTP verified! Registration complete.");
+    navigate("/login");
+  } catch (err) {
+    console.error(err?.response?.data || err);
+    alert(err?.response?.data?.error || "Verification failed.");
+  }
+};
+
+// 2) RESEND — use the correct endpoint and sanitize
+const handleResendOtp = async () => {
+  setResending(true);
+  try {
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    await axios.post("http://localhost:5000/api/auth/resend-otp", { email: cleanEmail });
+    alert("OTP resent.");
+    setTimer(60);
+  } catch (err) {
+    console.error(err?.response?.data || err);
+    alert(err?.response?.data?.error || "Failed to resend OTP.");
+  }
+  setResending(false);
+};
 
   return (
     <div className="login-page">

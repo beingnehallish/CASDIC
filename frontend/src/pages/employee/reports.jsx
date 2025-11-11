@@ -170,7 +170,7 @@ export default function ReportsPage() {
 
   return (
     <div className="rpt-section">
-      <h2>Reports</h2>
+      <h2>REPORTS</h2>
       <p>Generate or download analytics and performance reports here.</p>
 
       <div className="rpt-filters-panel">

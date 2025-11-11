@@ -21,6 +21,7 @@ function RegisterPage() {
 
       alert(response.data.message || "OTP sent to your email.");
       navigate("/auth", { state: { email } });
+      localStorage.setItem("pendingEmail", email.trim().toLowerCase());
     } catch (err) {
       console.error("Send OTP error:", err.response?.data || err);
       alert(err.response?.data?.error || "Failed to send OTP. Try again.");

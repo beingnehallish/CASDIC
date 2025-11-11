@@ -11,28 +11,36 @@ function LoginPage() {
 
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  // LoginPage.jsx
+const handleLogin = async (e) => {
   e.preventDefault();
   try {
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    const cleanPassword = String(password || "").trim();
+
     const res = await axios.post("http://localhost:5000/api/auth/login", {
-      email,
-      password,
+      email: cleanEmail,
+      password: cleanPassword,
     });
 
     localStorage.setItem("token", res.data.token);
+    const userRole = res.data.role;
 
-    const userRole = res.data.role; // ✅ backend role
-
-    if (userRole === "user") {
-      navigate("/user");      // redirect to user dashboard
-    } else if (userRole === "employee") {
-      navigate("/employee");  // redirect to employee dashboard
-    } else {
-      alert("Invalid role");
-    }
+    if (userRole === "user") navigate("/user");
+    else if (userRole === "employee") navigate("/employee");
+    else alert("Invalid role");
   } catch (err) {
-    alert(err.response?.data?.error || "Login failed");
+    console.error("LOGIN ERROR:", err?.response?.data || err);
+    alert(err?.response?.data?.error || "Login failed");
   }
+};
+
+// inside component
+const rippleFromPointer = (e) => {
+  const el = e.currentTarget;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty("--rx", `${e.clientX - r.left}px`);
+  el.style.setProperty("--ry", `${e.clientY - r.top}px`);
 };
 
   return (
@@ -67,7 +75,8 @@ function LoginPage() {
 
        
 
-        <button type="submit">Login</button>
+        <button type="submit" onMouseDown={rippleFromPointer}>Login</button>
+
       </form>
 
       {/* Register link only for users */}

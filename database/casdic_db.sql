@@ -68,7 +68,6 @@ CREATE TABLE IF NOT EXISTS versions (
 );
 
 -- 6. Companies
--- 6. Companies (Enhanced)
 CREATE TABLE IF NOT EXISTS companies (
   company_id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,           -- Company Name

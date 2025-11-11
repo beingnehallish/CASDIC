@@ -4,7 +4,7 @@ const router = express.Router();
 import db from "../config/db.js"; // your mysql pool or connection
 
 // helper to run queries (callback -> Promise)
-const queryAsync = (sql, values = []) =>
+const queryAsync = (sql, values = []) => 
   new Promise((resolve, reject) => {
     db.query(sql, values, (err, results) => {
       if (err) return reject(err);

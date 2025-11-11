@@ -14,7 +14,7 @@
 .empsidebar {
   width: 230px;
   height: 100vh;
-  background: #20232a;
+  background: black;
   color: #fff;
   padding: 1.5rem; /* Adjusted padding */
   position: fixed;

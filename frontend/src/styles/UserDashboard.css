@@ -6,7 +6,7 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: #f6f8fa;
+  background-color: white;
 }
 
 /* ================= Hero Section ================= */
@@ -41,6 +41,62 @@ body {
   margin-top: 56px; /* Navbar fixed height */
   padding: 20px;
 }
+/* ===== Slide container & panel ===== */
+.slide-container{
+  position: relative;
+  overflow: hidden;   /* keeps the sliding panel clipped */
+  min-height: 280px;  /* keep some height so layout doesn't jump */
+}
+
+.slide-panel{
+  /* base animation settings */
+  animation-duration: 360ms;
+  animation-timing-function: cubic-bezier(.22,.61,.36,1); /* snappy */
+  animation-fill-mode: both;
+  will-change: transform, opacity;
+}
+
+/* entering animations */
+.from-right{
+  animation-name: slide-in-from-right;
+}
+.from-left{
+  animation-name: slide-in-from-left;
+}
+
+/* keyframes */
+@keyframes slide-in-from-right{
+  from{
+    transform: translateX(22px);
+    opacity: 0;
+    filter: saturate(0.9);
+  }
+  to{
+    transform: translateX(0);
+    opacity: 1;
+    filter: saturate(1);
+  }
+}
+@keyframes slide-in-from-left{
+  from{
+    transform: translateX(-22px);
+    opacity: 0;
+    filter: saturate(0.9);
+  }
+  to{
+    transform: translateX(0);
+    opacity: 1;
+    filter: saturate(1);
+  }
+}
+
+/* optional: subtle parallax on cards inside, looks nice while sliding */
+.slide-panel .card{
+  transition: transform .36s cubic-bezier(.22,.61,.36,1), box-shadow .2s ease;
+}
+.slide-panel .card:hover{
+  transform: translateY(-2px);
+}
 
 /* ================= Navbar ================= */
 .navbar {
@@ -48,11 +104,10 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  background: #007BFF;
+  background:  #0056b3;;
   z-index: 1000;
   display: flex;
   justify-content: center;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
 }
 
 .navbar ul {
@@ -70,9 +125,15 @@ body {
   padding: 10px 15px;
   border-radius: 25px;
   transition: all 0.3s ease;
+   border:2px solid  #0056b3;
 }
 
-.navbar li:hover,
+.navbar li:hover{
+    background: black;
+  color: white;
+  border:2px solid white;
+  transform: scale(1.05);
+}
 .navbar li.active {
   background: #f9fcff;
   color: black;

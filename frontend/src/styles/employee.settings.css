@@ -1,0 +1,241 @@
+/* ===========================
+   Settings (Light Theme)
+   File: EmployeeDashboard.css (or settings.css)
+   =========================== */
+
+/* Page shell */
+.settings-page {
+  padding: 24px;
+  background: #f7f8fa;
+  min-height: 100%;
+  color: #1f2937; /* dark gray text */
+}
+
+/* Headings */
+.settings-page h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #111827; /* near-black */
+}
+
+/* Grid layout for cards */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card */
+.settings-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb; /* light border */
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.settings-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: #111827;
+}
+
+/* Card header w/ optional actions (e.g., Refresh) */
+.settings-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+/* Read-only fields */
+.settings-readonly {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  row-gap: 12px;
+  column-gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .settings-readonly {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-field label {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280; /* gray-500 */
+  margin: 8px 0 4px;
+}
+
+.settings-value {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Form layout */
+.settings-form {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-form label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151; /* gray-700 */
+}
+
+.settings-form input[type="text"],
+.settings-form input[type="email"],
+.settings-form input[type="password"],
+.settings-form select,
+.settings-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db; /* gray-300 */
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.settings-form input::placeholder,
+.settings-form textarea::placeholder {
+  color: #9ca3af; /* gray-400 */
+}
+
+.settings-form input:focus,
+.settings-form select:focus,
+.settings-form textarea:focus {
+  border-color: #2563eb; /* blue-600 */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Buttons */
+.save-btn,
+.logout-btn {
+  user-select: none;
+  -webkit-user-select: none;
+  appearance: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
+}
+
+/* Primary button (used by Save & Refresh) */
+.save-btn {
+  background: #2563eb;          /* blue-600 */
+  color: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(37, 99, 235, 0.25),
+    0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.save-btn:hover {
+  background: #1d4ed8;          /* blue-700 */
+}
+
+.save-btn:active {
+  transform: translateY(0.5px);
+}
+
+.save-btn:disabled {
+  background: #93c5fd;          /* blue-300 */
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Danger button */
+.logout-btn {
+  background: #ef4444;          /* red-500 */
+  color: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(239, 68, 68, 0.25),
+    0 2px 6px rgba(239, 68, 68, 0.15);
+}
+
+.logout-btn:hover {
+  background: #dc2626;          /* red-600 */
+}
+
+.logout-btn:active {
+  transform: translateY(0.5px);
+}
+
+/* Message text (errors / success) */
+.form-message {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151; /* default gray text */
+}
+
+.form-message::before {
+  content: "ℹ️ ";
+}
+
+/* You can optionally add explicit success/error helpers
+   (use in JSX like: <p className="form-message form-message--success">…</p>) */
+.form-message--success { color: #16a34a; }  /* green-600 */
+.form-message--error   { color: #dc2626; }  /* red-600 */
+
+.form-message--success::before { content: "✅ "; }
+.form-message--error::before   { content: "❌ "; }
+
+/* Danger zone block */
+.danger-zone {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff7f7;
+  border: 1px solid #fecaca; /* red-200 */
+}
+
+.danger-zone h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #b91c1c; /* red-700 */
+}
+
+/* Accessibility: focus outlines for interactive elements */
+.save-btn:focus-visible,
+.logout-btn:focus-visible,
+.settings-form input:focus-visible,
+.settings-form select:focus-visible,
+.settings-form textarea:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Utility: subtle divider (use if needed) */
+.settings-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 12px 0;
+}
